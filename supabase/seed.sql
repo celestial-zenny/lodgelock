@@ -1,5 +1,5 @@
 -- Demo data for the prototype. All lodges are flagged is_demo = true and shown with a "Demo" badge.
--- People and lodges are fictional; prices are illustrative 2026 annual rents.
+-- People and lodges are fictional; prices are illustrative 2026 annual rents, capped at ₦500,000.
 -- Seed accounts have no password and cannot sign in.
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -46,7 +46,7 @@ values
    'Emerald Court', 'Room and parlour for students who want space to share. Solar backup keeps lights and fans on during outages.',
    'Eziobodo', 'Behind St. Paul''s, Eziobodo', 'room_and_parlour',
    '{prepaid_meter,borehole,fenced,security,tiled,solar_backup,kitchen,wardrobe}', 1200, 'back_gate',
-   55000000, 2750000, 'verified', true),
+   48000000, 2400000, 'verified', true),
   ('b0000000-0000-4000-8000-000000000004', 'a0000000-0000-4000-8000-000000000002', 'a0000000-0000-4000-8000-000000000003',
    'Sunrise Lodge', 'Self-contain with a night guard and gated entry. Short walk to the shuttle stop.',
    'Umuchima', 'Umuchima Junction, Umuchima', 'self_contain',
@@ -61,7 +61,7 @@ values
    'Peace Haven Apartments', 'Two-bedroom flat suited to two or three students sharing. It has its own kitchen, a parking space and 24h security.',
    'Umuchima', 'New Layout, Umuchima', 'flat',
    '{prepaid_meter,borehole,fenced,security,tiled,pop_ceiling,solar_backup,kitchen,parking,wardrobe}', 2200, 'main_gate',
-   85000000, 4000000, 'verified', true),
+   50000000, 2500000, 'verified', true),
   ('b0000000-0000-4000-8000-000000000007', 'a0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003',
    'Green Gate Lodge', 'Self-contain beside a tarred road, so it stays reachable in the rainy season. Each room has its own prepaid meter.',
    'Ihiagwa', 'Ihiagwa Road, Ihiagwa', 'self_contain',

@@ -1,5 +1,5 @@
-// Generated from the live Supabase schema (project lodgelock). Regenerate after migrations;
-// do not edit by hand.
+// Generated from the live Supabase schema (project lodgelock) through migration 0003.
+// Regenerate after migrations; do not edit by hand.
 
 export type Json =
   | string
@@ -547,6 +547,53 @@ export type Database = {
           },
         ]
       }
+      payment_attempts: {
+        Row: {
+          amount_kobo: number
+          booking_id: string
+          created_at: string
+          id: string
+          last_response_code: string | null
+          provider: string
+          provider_payment_ref: string | null
+          settled_at: string | null
+          status: string
+          txn_ref: string
+        }
+        Insert: {
+          amount_kobo: number
+          booking_id: string
+          created_at?: string
+          id?: string
+          last_response_code?: string | null
+          provider?: string
+          provider_payment_ref?: string | null
+          settled_at?: string | null
+          status?: string
+          txn_ref: string
+        }
+        Update: {
+          amount_kobo?: number
+          booking_id?: string
+          created_at?: string
+          id?: string
+          last_response_code?: string | null
+          provider?: string
+          provider_payment_ref?: string | null
+          settled_at?: string | null
+          status?: string
+          txn_ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_attempts_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -664,6 +711,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      begin_payment: {
+        Args: { p_booking: string }
+        Returns: { amount_kobo: number; txn_ref: string }[]
+      }
+      create_booking: { Args: { p_lodge: string }; Returns: string }
+      record_payment: {
+        Args: { p_amount_kobo: number | null; p_provider_ref: string | null; p_response_code: string | null; p_txn_ref: string }
+        Returns: string
+      }
       confirm_move_in: { Args: { p_booking: string }; Returns: undefined }
       lodge_trust: {
         Args: { p_lodge_ids: string[] }

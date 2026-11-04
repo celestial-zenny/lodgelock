@@ -34,7 +34,10 @@ async function HeaderAuth() {
   if (data?.claims) {
     return (
       <form action={signOut} className="flex items-center gap-1">
-        <span className="hidden px-2 text-muted sm:inline">{name?.split(" ")[0]}</span>
+        <Link href="/account" className="rounded-md px-3 py-2 hover:bg-brand-soft">
+          <span className="sm:hidden">Account</span>
+          <span className="hidden sm:inline">{name?.split(" ")[0] ?? "Account"}</span>
+        </Link>
         <button className="rounded-md px-3 py-2 hover:bg-brand-soft">Log out</button>
       </form>
     );
