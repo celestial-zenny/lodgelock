@@ -2,6 +2,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
+import type { Database } from "./database.types";
 
 function env(name: string): string {
   const v = process.env[name];
@@ -9,21 +10,25 @@ function env(name: string): string {
   return v;
 }
 
-/** Acts as the signed-in user. RLS applies. Use this by default. */
+/** Acts as the signed-in user (or anon). RLS applies. Use this by default. */
 export async function createUserClient() {
   const cookieStore = await cookies();
-  return createServerClient(env("NEXT_PUBLIC_SUPABASE_URL"), env("NEXT_PUBLIC_SUPABASE_ANON_KEY"), {
-    cookies: {
-      getAll: () => cookieStore.getAll(),
-      setAll: (toSet) => {
-        try {
-          toSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
-        } catch {
-          // Called from a Server Component: cookies are read-only there; middleware refreshes them.
-        }
+  return createServerClient<Database>(
+    env("NEXT_PUBLIC_SUPABASE_URL"),
+    env("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: (toSet) => {
+          try {
+            toSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+          } catch {
+            // Called from a Server Component: cookies are read-only there; the proxy refreshes them.
+          }
+        },
       },
     },
-  });
+  );
 }
 
 /**
@@ -31,7 +36,7 @@ export async function createUserClient() {
  * after the caller has authenticated the request (webhook signature, CRON_SECRET, admin check).
  */
 export function createServiceClient() {
-  return createClient(env("NEXT_PUBLIC_SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), {
+  return createClient<Database>(env("NEXT_PUBLIC_SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
