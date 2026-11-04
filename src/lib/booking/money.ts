@@ -4,7 +4,7 @@ import { z } from "zod";
 export const Kobo = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 
 /** Max agent fee as a fraction of rent. Keep in sync with lodges.agent_fee_cap in the migration. */
-export const AGENT_FEE_CAP_DIVISOR = 10; // 10%
+export const AGENT_FEE_CAP_DIVISOR = 20; // 5%
 
 export function maxAgentFeeKobo(rentKobo: number): number {
   return Math.floor(rentKobo / AGENT_FEE_CAP_DIVISOR);

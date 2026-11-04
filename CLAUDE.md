@@ -6,7 +6,7 @@
 LodgeLock is a verified lodge-booking app for FUTO (Federal University of Technology, Owerri) students.
 Core promise: rent is held and only released to the landlord AFTER the student moves in and confirms
 the lodge matches the listing. Landlords and agents are identity-verified. Agent fees are capped
-and shown upfront.
+and shown upfront (cap: 5% of annual rent — `lodges.agent_fee_cap` + `src/lib/booking/money.ts`).
 
 Built for the Beyond Access hackathon (HacktoberXFUTO). Proposal due Nov 19 2026; working prototype for finals.
 

@@ -86,8 +86,8 @@ create table public.lodges (
   status          public.lodge_status not null default 'draft',
   created_at      timestamptz not null default now(),
   updated_at      timestamptz not null default now(),
-  -- Agent fee cap: at most 10% of annual rent. Change here AND in src/lib/booking/money.ts.
-  constraint agent_fee_cap check (agent_fee_kobo * 10 <= rent_kobo)
+  -- Agent fee cap: at most 5% of annual rent. Change here AND in src/lib/booking/money.ts.
+  constraint agent_fee_cap check (agent_fee_kobo * 20 <= rent_kobo)
 );
 create index on public.lodges (status, area);
 
