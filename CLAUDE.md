@@ -65,3 +65,13 @@ Source of truth: `supabase/migrations/0001_init.sql` (`booking_transitions` tabl
 - Server actions / route handlers for all writes
 - Zod validation on every input
 - No AI/Claude attribution in commits or PR descriptions
+
+## Working notes
+- Supabase project: `lodgelock` (ref `vnwqvokhybdvrlldnnrb`, eu-west-2). Migrations in `supabase/migrations/`
+  are applied in order; demo data in `supabase/seed.sql` (idempotent, lodges flagged `is_demo`).
+- After any migration, regenerate `src/lib/supabase/database.types.ts` and re-run the security advisor.
+- Helper/trigger functions live in the non-exposed `private` schema. Only intentional RPCs stay in `public`
+  (`confirm_move_in`, `raise_dispute`, `lodge_trust`).
+- Profiles are created only by the `on_auth_user_created` trigger from sign-up metadata. DOB is never stored.
+- Next 16 + `cacheComponents`: anything reading cookies/params/searchParams must render inside `<Suspense>`;
+  session refresh lives in `src/proxy.ts` (middleware was renamed to proxy). Run `npx next typegen` for `PageProps`.
