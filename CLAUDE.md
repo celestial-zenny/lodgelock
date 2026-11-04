@@ -75,3 +75,8 @@ Source of truth: `supabase/migrations/0001_init.sql` (`booking_transitions` tabl
 - Profiles are created only by the `on_auth_user_created` trigger from sign-up metadata. DOB is never stored.
 - Next 16 + `cacheComponents`: anything reading cookies/params/searchParams must render inside `<Suspense>`;
   session refresh lives in `src/proxy.ts` (middleware was renamed to proxy). Run `npx next typegen` for `PageProps`.
+- Payments (Interswitch Web Checkout, sandbox): `create_booking` RPC -> `begin_payment` RPC (new `LL-…` txn_ref per
+  attempt, server-set amount) -> inline checkout -> `settlePayment()` requeries Interswitch -> `record_payment` RPC
+  (service role only; idempotent; DRAFT -> PAID_HELD + balanced ledger). The webhook only triggers a requery.
+  Interswitch config refuses non-TEST mode and non-sandbox hosts (`src/lib/interswitch/config.ts`).
+- Rate limits are enforced inside DB functions via `private.hit_rate_limit` (create_booking, begin_payment: 10/hour/user).

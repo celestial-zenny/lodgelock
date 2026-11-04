@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { POLICY_VERSION } from "@/lib/auth/signup-schema";
 
 export const metadata: Metadata = { title: "Privacy Policy & Terms — LodgeLock" };
@@ -42,7 +43,7 @@ export default function PrivacyPage() {
         <h2 className="text-base font-semibold">Your rights</h2>
         <p>
           Under the Nigeria Data Protection Act 2023 you can ask to see, correct or delete your data, and you
-          can withdraw consent at any time. You&apos;ll be able to make a deletion request from your account page.
+          can withdraw consent at any time. Request deletion from your <Link href="/account" className="underline">account page</Link>.
           We keep financial records for as long as the law requires, anonymised where possible.
         </p>
       </section>

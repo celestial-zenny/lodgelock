@@ -8,6 +8,7 @@ import { MOVE_IN_WINDOW_HOURS } from "@/lib/booking/state-machine";
 import { createUserClient } from "@/lib/supabase/server";
 import { Badge, TrustBadges } from "@/components/lodge-badges";
 import { LodgeVisual } from "@/components/lodge-visual";
+import { BookButton } from "./book-button";
 
 export async function generateMetadata({ params }: PageProps<"/lodges/[id]">): Promise<Metadata> {
   const lodge = await getLodge((await params).id);
@@ -162,13 +163,10 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
             <div className="text-xs text-muted">held until you move in</div>
           </div>
           {signedIn ? (
-            <button disabled className="rounded-lg bg-brand px-5 py-3 font-semibold text-brand-ink opacity-60"
-              title="Booking and payment are being built next">
-              Booking opens soon
-            </button>
+            <BookButton lodgeId={lodge.id} />
           ) : (
-            <Link href={`/signup`} className="rounded-lg bg-brand px-5 py-3 font-semibold text-brand-ink">
-              Sign up to book
+            <Link href={`/login?next=/lodges/${lodge.id}`} className="rounded-lg bg-brand px-5 py-3 font-semibold text-brand-ink">
+              Log in to book
             </Link>
           )}
         </div>
