@@ -41,6 +41,12 @@ async function AccountDetails() {
         {profile && <div className="flex justify-between gap-4"><dt className="text-muted">Member since</dt><dd>{d.format(new Date(profile.created_at))}</dd></div>}
       </dl>
 
+      {(profile?.role === "landlord" || profile?.role === "agent") && (
+        <Link href="/verify" className="block rounded-xl border border-line bg-surface p-4 font-medium">Verify my identity →</Link>
+      )}
+      {profile?.role === "admin" && (
+        <Link href="/admin/kyc" className="block rounded-xl border border-line bg-surface p-4 font-medium">Identity approvals →</Link>
+      )}
       <Link href="/bookings" className="block rounded-xl border border-line bg-surface p-4 font-medium">My bookings →</Link>
 
       <section aria-labelledby="del" className="space-y-3 rounded-xl border border-danger/30 p-4">

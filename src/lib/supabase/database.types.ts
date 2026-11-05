@@ -344,6 +344,63 @@ export type Database = {
           },
         ]
       }
+      kyc_reviews: {
+        Row: {
+          admin_note: string | null
+          all_passed: boolean | null
+          bank_passed: boolean | null
+          bvn_passed: boolean | null
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          nin_passed: boolean | null
+          status: Database["public"]["Enums"]["kyc_review_status"]
+          subject_id: string
+          submitted_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          all_passed?: boolean | null
+          bank_passed?: boolean | null
+          bvn_passed?: boolean | null
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          nin_passed?: boolean | null
+          status?: Database["public"]["Enums"]["kyc_review_status"]
+          subject_id: string
+          submitted_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          all_passed?: boolean | null
+          bank_passed?: boolean | null
+          bvn_passed?: boolean | null
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          nin_passed?: boolean | null
+          status?: Database["public"]["Enums"]["kyc_review_status"]
+          subject_id?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kyc_reviews_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kyc_reviews_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kyc_verifications: {
         Row: {
           check_type: Database["public"]["Enums"]["kyc_check"]
@@ -716,6 +773,31 @@ export type Database = {
         Returns: { amount_kobo: number; txn_ref: string }[]
       }
       create_booking: { Args: { p_lodge: string }; Returns: string }
+      decide_kyc_review: {
+        Args: { p_approve: boolean; p_note?: string; p_review: string }
+        Returns: undefined
+      }
+      kyc_begin_check: { Args: never; Returns: undefined }
+      kyc_grant_consent: {
+        Args: { p_policy_version: string }
+        Returns: {
+          bank_consent: string
+          bvn_consent: string
+          nin_consent: string
+        }[]
+      }
+      record_kyc_submission: {
+        Args: {
+          p_bank_consent: string
+          p_bank_passed: boolean
+          p_bvn_consent: string
+          p_bvn_passed: boolean
+          p_nin_consent: string
+          p_nin_passed: boolean
+          p_subject: string
+        }
+        Returns: string
+      }
       record_payment: {
         Args: { p_amount_kobo: number | null; p_provider_ref: string | null; p_response_code: string | null; p_txn_ref: string }
         Returns: string
@@ -752,6 +834,7 @@ export type Database = {
       dispute_status: "open" | "resolved_refund" | "resolved_payout"
       inspection_status: "assigned" | "submitted" | "approved" | "rejected"
       kyc_check: "nin" | "bvn_match" | "bank_account"
+      kyc_review_status: "pending" | "approved" | "rejected"
       ledger_direction: "debit" | "credit"
       lodge_status: "draft" | "pending_review" | "verified" | "suspended"
       room_type: "single_room" | "self_contain" | "room_and_parlour" | "flat"
@@ -786,6 +869,7 @@ export const Constants = {
       dispute_status: ["open", "resolved_refund", "resolved_payout"],
       inspection_status: ["assigned", "submitted", "approved", "rejected"],
       kyc_check: ["nin", "bvn_match", "bank_account"],
+      kyc_review_status: ["pending", "approved", "rejected"],
       ledger_direction: ["debit", "credit"],
       lodge_status: ["draft", "pending_review", "verified", "suspended"],
       room_type: ["single_room", "self_contain", "room_and_parlour", "flat"],
