@@ -24,6 +24,7 @@
 | 12 | Analytics | Usage events | Opted-in users only | Consent (a) — **off by default** | _Not implemented_ | — |
 | 13 | Marketing email/SMS | Email/phone | Opted-in users only | Consent (a); every message names sender + working unsubscribe | _Not implemented_ | Until unsubscribe |
 | 14 | Data deletion requests | Request record, optional reason | All | Legal obligation (c) | `data_deletion_requests` (submitted from /account) | 2 years |
+| 5a | KYC admin review | Per-check pass/fail, submission and decision timestamps, deciding admin, optional note | Landlords, agents | Consent (a) for the checks; Legitimate interests (f) for fraud prevention review | `kyc_reviews` | As #3 |
 | 15 | Abuse prevention (rate limits) | User id + action counter | Signed-in users | Legitimate interests (f) | `private.rate_limits` | 1 day |
 
 ## Processors / third parties
@@ -36,6 +37,10 @@
 - Row Level Security on every table; students see only their own bookings.
 - Raw NIN/BVN/account numbers are never stored or logged. They're passed straight to the provider in a server route, then discarded.
 - Consent is recorded (`consents`) with purpose and policy version **before** any KYC call. It can be withdrawn.
+- KYC flow (`/verify`): consent screen -> `kyc_grant_consent` records `kyc_nin`, `kyc_bvn`, `kyc_bank` consents -> server
+  runs NIN, then BVN Boolean Match, then bank account checks, stopping at the first failure (data minimisation) ->
+  `record_kyc_submission` (service role) refuses any result without a matching live consent. An admin approves at
+  `/admin/kyc`; approval needs all three checks passed.
 - `booking_events` and `ledger_entries` are append-only.
 - Fonts are self-hosted, and no third-party trackers load before opt-in.
 
