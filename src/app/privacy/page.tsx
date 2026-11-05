@@ -52,9 +52,12 @@ export default function PrivacyPage() {
         <h2 className="text-base font-semibold">Terms (summary)</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>LodgeLock is a booking platform. We never hold your money ourselves. A licensed payment partner holds it.</li>
-          <li>Rent is released to the landlord when you confirm move-in, or automatically if you don&apos;t respond within 72 hours of payment.</li>
-          <li>If the lodge doesn&apos;t match the listing, raise a dispute within 72 hours. Disputed payments are held until we resolve them.</li>
-          <li>Agent fees can&apos;t exceed 5% of annual rent.</li>
+          <li>Rent is released when you confirm you&apos;ve moved in. If the landlord, agent or caretaker marks the keys handed over and you don&apos;t confirm or dispute within 48 hours, it&apos;s released automatically.</li>
+          <li>If the lodge doesn&apos;t match the listing, raise a dispute instead of confirming (within 48 hours of the handover). Disputed payments are held until we resolve them.</li>
+          <li>You can cancel while your rent is held. It&apos;s free within 24 hours of paying if you haven&apos;t received the keys. After that, or if you don&apos;t move in within 7 days of your move-in date and no handover happened, the landlord receives 10% of rent and the rest is refunded.</li>
+          <li>Some landlords charge a commitment fee (10–20% of rent). If so, it&apos;s shown before you pay, goes to the landlord when you pay, isn&apos;t held, and counts towards the 10% above.</li>
+          <li>Agent fees paid by students can&apos;t exceed 5% of annual rent. Agents may also receive a commission from the landlord, which never comes out of your payment.</li>
+          <li>Payouts go only to identity-verified landlords and agents. Caretakers never receive money through LodgeLock.</li>
         </ul>
       </section>
     </main>

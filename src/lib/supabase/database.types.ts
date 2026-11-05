@@ -72,43 +72,73 @@ export type Database = {
       }
       bookings: {
         Row: {
+          agent_commission_kobo: number
           agent_fee_kobo: number
+          agent_id: string | null
+          auto_release_at: string | null
+          cancellation_kind: string | null
+          cancelled_at: string | null
+          commitment_fee_kobo: number
           created_at: string
+          handover_at: string | null
+          handover_by: string | null
           id: string
           lodge_id: string
-          move_in_deadline: string | null
+          move_in_date: string
           paid_at: string | null
           payment_ref: string | null
+          renewal_of: string | null
           rent_kobo: number
           status: Database["public"]["Enums"]["booking_status"]
+          student_confirmed_at: string | null
           student_id: string
           total_kobo: number | null
           updated_at: string
         }
         Insert: {
+          agent_commission_kobo?: number
           agent_fee_kobo: number
+          agent_id?: string | null
+          auto_release_at?: string | null
+          cancellation_kind?: string | null
+          cancelled_at?: string | null
+          commitment_fee_kobo?: number
           created_at?: string
+          handover_at?: string | null
+          handover_by?: string | null
           id?: string
           lodge_id: string
-          move_in_deadline?: string | null
+          move_in_date: string
           paid_at?: string | null
           payment_ref?: string | null
+          renewal_of?: string | null
           rent_kobo: number
           status?: Database["public"]["Enums"]["booking_status"]
+          student_confirmed_at?: string | null
           student_id: string
           total_kobo?: number | null
           updated_at?: string
         }
         Update: {
+          agent_commission_kobo?: number
           agent_fee_kobo?: number
+          agent_id?: string | null
+          auto_release_at?: string | null
+          cancellation_kind?: string | null
+          cancelled_at?: string | null
+          commitment_fee_kobo?: number
           created_at?: string
+          handover_at?: string | null
+          handover_by?: string | null
           id?: string
           lodge_id?: string
-          move_in_deadline?: string | null
+          move_in_date?: string
           paid_at?: string | null
           payment_ref?: string | null
+          renewal_of?: string | null
           rent_kobo?: number
           status?: Database["public"]["Enums"]["booking_status"]
+          student_confirmed_at?: string | null
           student_id?: string
           total_kobo?: number | null
           updated_at?: string
@@ -536,11 +566,14 @@ export type Database = {
           agent_id: string | null
           amenities: string[]
           area: string
+          caretaker_id: string | null
+          commitment_fee_pct: number
           created_at: string
           description: string
           distance_to_gate_m: number | null
           id: string
           is_demo: boolean
+          landlord_commission_pct: number
           nearest_gate: string | null
           owner_id: string
           rent_kobo: number
@@ -555,11 +588,14 @@ export type Database = {
           agent_id?: string | null
           amenities?: string[]
           area: string
+          caretaker_id?: string | null
+          commitment_fee_pct?: number
           created_at?: string
           description?: string
           distance_to_gate_m?: number | null
           id?: string
           is_demo?: boolean
+          landlord_commission_pct?: number
           nearest_gate?: string | null
           owner_id: string
           rent_kobo: number
@@ -574,11 +610,14 @@ export type Database = {
           agent_id?: string | null
           amenities?: string[]
           area?: string
+          caretaker_id?: string | null
+          commitment_fee_pct?: number
           created_at?: string
           description?: string
           distance_to_gate_m?: number | null
           id?: string
           is_demo?: boolean
+          landlord_commission_pct?: number
           nearest_gate?: string | null
           owner_id?: string
           rent_kobo?: number
@@ -603,6 +642,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payee_mandates: {
+        Row: {
+          agent_id: string
+          id: string
+          landlord_id: string
+          lodge_id: string
+          policy_version: string
+          revoked_at: string | null
+          signed_at: string
+        }
+        Insert: {
+          agent_id: string
+          id?: string
+          landlord_id: string
+          lodge_id: string
+          policy_version: string
+          revoked_at?: string | null
+          signed_at?: string
+        }
+        Update: {
+          agent_id?: string
+          id?: string
+          landlord_id?: string
+          lodge_id?: string
+          policy_version?: string
+          revoked_at?: string | null
+          signed_at?: string
+        }
+        Relationships: []
       }
       payment_attempts: {
         Row: {
@@ -650,6 +719,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payout_instructions: {
+        Row: {
+          amount_kobo: number
+          booking_id: string
+          created_at: string
+          id: string
+          kind: string
+          payee_id: string
+          status: string
+          txn_id: string
+        }
+        Insert: {
+          amount_kobo: number
+          booking_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          payee_id: string
+          status?: string
+          txn_id: string
+        }
+        Update: {
+          amount_kobo?: number
+          booking_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          payee_id?: string
+          status?: string
+          txn_id?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -772,7 +874,11 @@ export type Database = {
         Args: { p_booking: string }
         Returns: { amount_kobo: number; txn_ref: string }[]
       }
-      create_booking: { Args: { p_lodge: string }; Returns: string }
+      cancel_booking: { Args: { p_booking: string }; Returns: string }
+      create_booking: {
+        Args: { p_lodge: string; p_move_in_date: string; p_renewal_of?: string }
+        Returns: string
+      }
       decide_kyc_review: {
         Args: { p_approve: boolean; p_note?: string; p_review: string }
         Returns: undefined
@@ -802,7 +908,24 @@ export type Database = {
         Args: { p_amount_kobo: number | null; p_provider_ref: string | null; p_response_code: string | null; p_txn_ref: string }
         Returns: string
       }
-      confirm_move_in: { Args: { p_booking: string }; Returns: undefined }
+      run_booking_deadlines: { Args: never; Returns: Json }
+      confirm_move_in: {
+        Args: { p_booking: string }
+        Returns: Database["public"]["Enums"]["booking_status"]
+      }
+      mark_handover: {
+        Args: { p_booking: string }
+        Returns: Database["public"]["Enums"]["booking_status"]
+      }
+      revoke_payee_mandate: { Args: { p_lodge: string }; Returns: undefined }
+      set_lodge_caretaker: {
+        Args: { p_email: string | null; p_lodge: string }
+        Returns: undefined
+      }
+      sign_payee_mandate: {
+        Args: { p_agent: string; p_lodge: string; p_policy_version: string }
+        Returns: string
+      }
       lodge_trust: {
         Args: { p_lodge_ids: string[] }
         Returns: {
@@ -831,6 +954,7 @@ export type Database = {
         | "REFUNDED"
         | "PAID_OUT"
         | "CANCELLED"
+        | "STUDENT_CANCELLED"
       dispute_status: "open" | "resolved_refund" | "resolved_payout"
       inspection_status: "assigned" | "submitted" | "approved" | "rejected"
       kyc_check: "nin" | "bvn_match" | "bank_account"
@@ -838,7 +962,7 @@ export type Database = {
       ledger_direction: "debit" | "credit"
       lodge_status: "draft" | "pending_review" | "verified" | "suspended"
       room_type: "single_room" | "self_contain" | "room_and_parlour" | "flat"
-      user_role: "student" | "landlord" | "agent" | "scout" | "admin"
+      user_role: "student" | "landlord" | "agent" | "scout" | "admin" | "caretaker"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -865,6 +989,7 @@ export const Constants = {
         "REFUNDED",
         "PAID_OUT",
         "CANCELLED",
+        "STUDENT_CANCELLED",
       ],
       dispute_status: ["open", "resolved_refund", "resolved_payout"],
       inspection_status: ["assigned", "submitted", "approved", "rejected"],
@@ -873,7 +998,7 @@ export const Constants = {
       ledger_direction: ["debit", "credit"],
       lodge_status: ["draft", "pending_review", "verified", "suspended"],
       room_type: ["single_room", "self_contain", "room_and_parlour", "flat"],
-      user_role: ["student", "landlord", "agent", "scout", "admin"],
+      user_role: ["student", "landlord", "agent", "scout", "admin", "caretaker"],
     },
   },
 } as const

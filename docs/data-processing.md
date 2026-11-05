@@ -5,7 +5,7 @@
 > (d) vital interests, (e) public interest, (f) legitimate interests.
 
 **Controller:** LodgeLock team (contact: _TBD — add a monitored privacy email before launch_)
-**Data subjects:** students, landlords, agents, scouts, admins.
+**Data subjects:** students, landlords, agents, caretakers, scouts, admins.
 
 | # | Activity | Data | Subjects | Lawful basis | Where stored | Retention |
 |---|----------|------|----------|--------------|--------------|-----------|
@@ -15,9 +15,13 @@
 | 4 | BVN Boolean Match | BVN + name sent to Interswitch; **only pass/fail kept** | Landlords, agents | Consent (a) | `kyc_verifications`, `consents` | As #3 |
 | 5 | Bank account verification for payouts | Account no. + bank code sent to Interswitch; name-match result kept; payout instruction held by payment partner | Landlords, agents | Contract (b) + Consent (a) | Payment partner; result in `kyc_verifications` | As #3 |
 | 6 | Rent payment & escrow record | Booking, amounts, provider transaction refs | Students, landlords | Contract (b); Legal obligation (c) for financial records | `bookings`, `ledger_entries`, `booking_events` | 6 years (financial records) |
+| 6b | Payout split & instructions | Payee, kind (rent, agent fee, commission, renewal bonus, commitment fee, compensation, refund), amount, KYC status | Landlords, agents, students (refunds) | Contract (b); Legal obligation (c) for financial records | `payout_instructions`, `ledger_entries` | 6 years (financial records) |
+| 6c | Payee mandate | Landlord, named agent, lodge, policy version, signed/revoked timestamps | Landlords, agents | Contract (b): the landlord's instruction to pay rent to their agent | `payee_mandates` | Life of mandate + 6 years |
+| 6d | Handover & move-in confirmation | Who marked the handover, timestamps, move-in date, cancellation type | Students, landlords, agents, caretakers | Contract (b) | `bookings`, `booking_events` | 6 years (financial records) |
 | 6a | Payment attempts | Our transaction ref, amount, provider reference, response code | Students | Contract (b); Legal obligation (c) | `payment_attempts` | 6 years (financial records) |
 | 7 | Payment webhooks | Provider event payload (no BVN/NIN) | Students, landlords | Contract (b) | `webhook_events` | 1 year |
 | 8 | Disputes | Dispute reason, evidence photos | Students, landlords | Contract (b); Legitimate interests (f) | `disputes`, Storage | 2 years after resolution |
+| 9a | Caretaker assignment | Caretaker account linked to a lodge (looked up by the email the landlord enters) | Caretakers | Contract (b); Legitimate interests (f) of the landlord | `lodges.caretaker_id` | While assigned |
 | 9 | Lodge listing & photos | Address, photos, price | Landlords/agents (and incidentally lodge) | Contract (b) | `lodges`, `lodge_photos`, Storage | While listed + 1 year |
 | 10 | Scout inspections | Checklist, photos, scout identity | Scouts | Contract (b) | `inspections`, Storage | 2 years |
 | 11 | Reviews | Rating, text, link to booking | Students | Legitimate interests (f) — honest information for other students | `reviews` | While lodge listed |

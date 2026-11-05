@@ -3,8 +3,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { AMENITY_LABEL, CHECKLIST_LABEL, GATE_LABEL, ROOM_TYPE_LABEL, getLodge, walkingMinutes } from "@/lib/lodges";
-import { AGENT_FEE_CAP_DIVISOR, formatNaira } from "@/lib/booking/money";
-import { MOVE_IN_WINDOW_HOURS } from "@/lib/booking/state-machine";
+import { AGENT_FEE_CAP_DIVISOR, commitmentFeeKobo, formatNaira } from "@/lib/booking/money";
+import { AUTO_RELEASE_HOURS, CANCEL_GRACE_HOURS, LATE_CANCEL_PCT } from "@/lib/booking/state-machine";
 import { createUserClient } from "@/lib/supabase/server";
 import { Badge, TrustBadges } from "@/components/lodge-badges";
 import { LodgeVisual } from "@/components/lodge-visual";
@@ -48,6 +48,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
   const signedIn = Boolean(auth?.claims);
   const t = lodge.trust;
   const total = lodge.rent_kobo + lodge.agent_fee_kobo;
+  const commitment = commitmentFeeKobo(lodge.rent_kobo, lodge.commitment_fee_pct);
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 pb-28">
@@ -67,7 +68,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
           )}
           <div className="mt-3"><TrustBadges trust={t} isDemo={lodge.is_demo} /></div>
           {lodge.is_demo && (
-            <p className="mt-2 text-xs text-warn">Sample listing for the LodgeLock prototype. It isn&apos;t a real lodge.</p>
+            <p className="mt-2 text-xs text-warn">Sample listing for the LodgeLock prototype. It isn&apos;t a real lodge, and the price is illustrative.</p>
           )}
         </div>
 
@@ -83,6 +84,13 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
               <dt>Total</dt><dd>{formatNaira(total)}</dd>
             </div>
           </dl>
+          {commitment > 0 && (
+            <p className="mt-3 rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">
+              <b>Commitment fee: {formatNaira(commitment)}</b> ({lodge.commitment_fee_pct}% of rent, part of the total above).
+              This landlord asks for it to reserve the lodge. It goes to them as soon as you pay and is <b>not</b> held,
+              so it can&apos;t be refunded through LodgeLock if you later dispute. The other {formatNaira(total - commitment)} is held.
+            </p>
+          )}
           <p className="mt-2 text-xs text-muted">No other fees. If anyone asks for extra cash, report it.</p>
         </section>
 
@@ -90,8 +98,13 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
           <h2 id="protect" className="font-semibold text-brand">How your rent is protected</h2>
           <ol className="mt-3 space-y-2 text-sm">
             <li><b>1. You pay through LodgeLock.</b> Our licensed payment partner holds the money. The landlord doesn&apos;t get it yet.</li>
-            <li><b>2. You move in and check.</b> If the lodge matches this listing, tap <i>Confirm move-in</i>.</li>
-            <li><b>3. The landlord gets paid.</b> If it doesn&apos;t match, raise a dispute within {MOVE_IN_WINDOW_HOURS} hours and we review it before any money moves.</li>
+            <li><b>2. You collect the keys and check the lodge.</b> The landlord, agent or caretaker marks the keys handed over.</li>
+            <li><b>3. You confirm and the landlord is paid.</b> If it doesn&apos;t match the listing, raise a dispute instead and we review it before any money moves.</li>
+            <li className="text-muted">If you don&apos;t confirm or dispute within {AUTO_RELEASE_HOURS} hours of the handover, the payment is released automatically.</li>
+            <li className="text-muted">
+              Changed your mind? Cancel free within {CANCEL_GRACE_HOURS} hours of paying (before you get the keys). After that the landlord keeps {LATE_CANCEL_PCT}% of rent
+              and the rest is refunded. If you never confirm and no handover happens, the booking is cancelled the same way 7 days after your move-in date.
+            </li>
           </ol>
         </section>
 
@@ -132,7 +145,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
             </>
           ) : (
             <p className="text-sm text-muted">
-              No scout has inspected this lodge yet. You&apos;re still protected: your rent is held until you confirm move-in.
+              No scout has inspected this lodge yet. You&apos;re still protected: your rent is held until you confirm you&apos;ve moved in.
             </p>
           )}
         </section>
@@ -160,7 +173,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-1">
           <div className="text-sm">
             <div className="font-semibold">{formatNaira(total)}</div>
-            <div className="text-xs text-muted">held until you move in</div>
+            <div className="text-xs text-muted">{commitment > 0 ? `${formatNaira(total - commitment)} held until you move in` : "held until you move in"}</div>
           </div>
           {signedIn ? (
             <BookButton lodgeId={lodge.id} />
