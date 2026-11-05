@@ -3,7 +3,7 @@ import Link from "next/link";
 const STEPS = [
   { title: "Browse verified lodges", body: "Every landlord and agent proves their identity. Student scouts inspect lodges in person." },
   { title: "Pay. Your rent is held", body: "The money sits with a licensed payment partner, not with the landlord, until you move in." },
-  { title: "Move in, then confirm", body: "If the lodge matches the listing, confirm and the landlord gets paid. If not, raise a dispute." },
+  { title: "Get the keys, then confirm", body: "If the lodge matches the listing, confirm and the landlord is paid straight away. If not, raise a dispute." },
 ];
 
 export default function Home() {
@@ -15,7 +15,7 @@ export default function Home() {
           Don&apos;t pay for a lodge you haven&apos;t moved into.
         </h1>
         <p className="mt-3 text-lg text-muted">
-          LodgeLock holds your rent until you move in and confirm the lodge is what was promised.
+          LodgeLock holds your rent until you get the keys and confirm the lodge is what was promised.
           Agent fees are capped at 5% and shown upfront.
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">

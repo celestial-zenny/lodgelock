@@ -44,6 +44,9 @@ async function AccountDetails() {
       {(profile?.role === "landlord" || profile?.role === "agent") && (
         <Link href="/verify" className="block rounded-xl border border-line bg-surface p-4 font-medium">Verify my identity →</Link>
       )}
+      {(profile?.role === "landlord" || profile?.role === "agent" || profile?.role === "caretaker") && (
+        <Link href="/landlord" className="block rounded-xl border border-line bg-surface p-4 font-medium">My lodges &amp; payouts →</Link>
+      )}
       {profile?.role === "admin" && (
         <Link href="/admin/kyc" className="block rounded-xl border border-line bg-surface p-4 font-medium">Identity approvals →</Link>
       )}

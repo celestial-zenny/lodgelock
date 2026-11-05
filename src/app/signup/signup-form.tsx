@@ -53,11 +53,12 @@ export function SignupForm() {
       </Field>
 
       <Field label="I am a" htmlFor="role" error={fe.role}
-        hint={isMinor ? "Under-18s can only sign up as students." : "Landlords and agents verify their identity later."}>
+        hint={isMinor ? "Under-18s can only sign up as students." : "Landlords and agents verify their identity later. Caretakers are never paid through LodgeLock."}>
         <select id="role" name="role" defaultValue={val.role ?? "student"} className={inputClass} {...err("role")}>
           <option value="student">Student looking for a lodge</option>
           <option value="landlord" disabled={isMinor}>Landlord</option>
           <option value="agent" disabled={isMinor}>Agent</option>
+          <option value="caretaker" disabled={isMinor}>Caretaker (shows lodges and hands over keys)</option>
         </select>
       </Field>
 

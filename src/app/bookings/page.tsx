@@ -24,11 +24,18 @@ async function BookingList() {
   const { data: auth } = await supabase.auth.getClaims();
   if (!auth?.claims) redirect("/login?next=/bookings");
 
-  const { data: bookings } = await supabase
+  // Students see their bookings; landlords/agents/caretakers see bookings on their lodges (RLS allows all).
+  // Filter explicitly so an admin's view here is still just their own.
+  const uid = auth.claims.sub;
+  const { data: rows } = await supabase
     .from("bookings")
-    .select("id,status,total_kobo,created_at,lodges(title,area)")
-    .eq("student_id", auth.claims.sub)
-    .order("created_at", { ascending: false });
+    .select("id,status,total_kobo,created_at,student_id,lodges(title,area,owner_id,agent_id,caretaker_id)")
+    .order("created_at", { ascending: false })
+    .limit(100);
+  const bookings = rows?.filter(
+    (b) => b.student_id === uid || b.lodges?.owner_id === uid || b.lodges?.agent_id === uid
+      || b.lodges?.caretaker_id === uid,
+  );
 
   if (!bookings?.length) {
     return (
@@ -49,7 +56,9 @@ async function BookingList() {
               </div>
               <p className="font-semibold">{b.total_kobo != null && formatNaira(b.total_kobo)}</p>
             </div>
-            <p className="mt-2 text-sm text-muted">{STATUS_LABEL[b.status as BookingStatus]}</p>
+            <p className="mt-2 text-sm text-muted">
+              {b.student_id === uid ? "" : "On your lodge · "}{STATUS_LABEL[b.status as BookingStatus]}
+            </p>
           </Link>
         </li>
       ))}
