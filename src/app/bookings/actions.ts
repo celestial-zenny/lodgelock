@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { z } from "zod";
 import { createUserClient } from "@/lib/supabase/server";
@@ -113,4 +114,47 @@ export async function verifyPayment(bookingId: string, txnRef: string): Promise<
   if (!attempt) return { outcome: "unknown_ref" };
 
   return { outcome: await settlePayment(attempt.txn_ref) };
+}
+
+export type HandoverState = { error?: string; status?: string } | null;
+
+/** Student or landlord/agent taps "Keys handed over". The DB decides who they are and releases when both have. */
+export async function confirmHandover(_prev: HandoverState, formData: FormData): Promise<HandoverState> {
+  const id = Uuid.safeParse(formData.get("bookingId"));
+  if (!id.success) return { error: "Invalid booking." };
+  const supabase = await createUserClient();
+  const { data: auth } = await supabase.auth.getClaims();
+  if (!auth?.claims) redirect(`/login?next=/bookings/${id.data}`);
+
+  const { data: status, error } = await supabase.rpc("confirm_keys_handover", { p_booking: id.data });
+  if (error) {
+    if (error.message.includes("not awaiting handover")) return { error: "This booking is no longer waiting for a handover." };
+    return { error: "We couldn't save your confirmation. Please try again." };
+  }
+  revalidatePath(`/bookings/${id.data}`);
+  revalidatePath("/bookings");
+  return { status };
+}
+
+const DisputeInput = z.object({
+  bookingId: z.uuid(),
+  reason: z.string().trim().min(10, "Tell us what's wrong (at least 10 characters)").max(2000),
+});
+
+export type DisputeState = { error?: string } | null;
+
+export async function raiseDispute(_prev: DisputeState, formData: FormData): Promise<DisputeState> {
+  const parsed = DisputeInput.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the form" };
+  const supabase = await createUserClient();
+  const { data: auth } = await supabase.auth.getClaims();
+  if (!auth?.claims) redirect(`/login?next=/bookings/${parsed.data.bookingId}`);
+
+  const { error } = await supabase.rpc("raise_dispute", { p_booking: parsed.data.bookingId, p_reason: parsed.data.reason });
+  if (error) {
+    if (error.message.includes("window closed")) return { error: "The dispute window for this booking has closed." };
+    return { error: "We couldn't open a dispute. Please try again." };
+  }
+  revalidatePath(`/bookings/${parsed.data.bookingId}`);
+  return null;
 }

@@ -22,7 +22,7 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "LodgeLock — verified lodges for FUTO students",
   description:
-    "Book verified lodges near FUTO. Your rent is held until you move in and confirm the lodge matches the listing.",
+    "Book verified lodges near FUTO. Your rent is held until you get the keys and confirm the lodge matches the listing.",
 };
 
 export const viewport: Viewport = {

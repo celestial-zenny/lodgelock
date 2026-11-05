@@ -30,8 +30,19 @@ Built for the Beyond Access hackathon (HacktoberXFUTO). Proposal due Nov 19 2026
 ## Booking state machine
 DRAFT -> PAID_HELD -> MOVE_IN_CONFIRMED -> PAID_OUT
 PAID_HELD -> DISPUTED -> (REFUNDED | PAID_OUT)
-PAID_HELD -> (72h no response) -> AUTO_CONFIRMED -> PAID_OUT
+PAID_HELD -> (landlord confirmed handover, student silent 72h) -> AUTO_CONFIRMED -> PAID_OUT
 DRAFT -> CANCELLED (abandoned / cancelled before payment)
+
+## Release rule
+- Payout is released when BOTH the student and the landlord/agent tap "Keys handed over" in the app
+  (`confirm_keys_handover` RPC). The second confirmation moves PAID_HELD -> MOVE_IN_CONFIRMED and books the payout
+  in the ledger immediately (same-day payout instruction). Confirmations are final.
+- 72h auto-confirm is a FALLBACK only: it runs when the landlord has confirmed and the student has neither confirmed
+  nor disputed within 72h of the landlord's confirmation (`move_in_deadline`). No landlord confirmation = no deadline.
+  Triggered daily by `/api/cron/auto-confirm` (`CRON_SECRET`, `vercel.json`).
+- Optional commitment fee per lodge (`lodges.commitment_fee_pct`: 0 = off, else 10-20% of rent; snapshotted to
+  `bookings.commitment_fee_kobo`). Released to the landlord at payment, NOT held, so not refundable through the hold.
+  Always shown to the student before they pay. Helpers in `src/lib/booking/money.ts`.
 Every transition is written to an append-only booking_events table.
 Source of truth: `supabase/migrations/0001_init.sql` (`booking_transitions` table + trigger).
 `src/lib/booking/state-machine.ts` mirrors it for the UI — keep the two in sync.
@@ -71,14 +82,18 @@ Source of truth: `supabase/migrations/0001_init.sql` (`booking_transitions` tabl
   are applied in order; demo data in `supabase/seed.sql` (idempotent, lodges flagged `is_demo`).
 - After any migration, regenerate `src/lib/supabase/database.types.ts` and re-run the security advisor.
 - Helper/trigger functions live in the non-exposed `private` schema. Only intentional RPCs stay in `public`
-  (`confirm_move_in`, `raise_dispute`, `lodge_trust`, `create_booking`, `begin_payment`, `kyc_grant_consent`,
-  `kyc_begin_check`, `decide_kyc_review`; service-role only: `record_payment`, `record_kyc_submission`).
+  (`confirm_keys_handover`, `raise_dispute`, `lodge_trust`, `create_booking`, `begin_payment`, `kyc_grant_consent`,
+  `kyc_begin_check`, `decide_kyc_review`; service-role only: `record_payment`, `record_kyc_submission`, `run_auto_confirm`).
 - Profiles are created only by the `on_auth_user_created` trigger from sign-up metadata. DOB is never stored.
 - Next 16 + `cacheComponents`: anything reading cookies/params/searchParams must render inside `<Suspense>`;
   session refresh lives in `src/proxy.ts` (middleware was renamed to proxy). Run `npx next typegen` for `PageProps`.
+  `createUserClient()` calls `await io()` after `cookies()`: supabase-js reads `Date.now()` for session expiry, and with
+  Partial Prefetching cookies can resolve during a runtime prerender ("Blocking Route: Date.now()"). Keep it.
 - Payments (Interswitch Web Checkout, sandbox): `create_booking` RPC -> `begin_payment` RPC (new `LL-…` txn_ref per
   attempt, server-set amount) -> inline checkout -> `settlePayment()` requeries Interswitch -> `record_payment` RPC
-  (service role only; idempotent; DRAFT -> PAID_HELD + balanced ledger). The webhook only triggers a requery.
+  (service role only; idempotent; DRAFT -> PAID_HELD + balanced ledger; commitment fee credited to `landlord:<id>`,
+  the rest to `held:booking:<id>`). The webhook only triggers a requery. On release, `private.book_release` moves the
+  held amount to `landlord:<id>` / `agent:<id>`; the actual transfer (PAID_OUT) is not built yet.
   Interswitch config refuses non-TEST mode and non-sandbox hosts (`src/lib/interswitch/config.ts`).
 - KYC (Interswitch API Marketplace, sandbox): `src/lib/interswitch/marketplace.ts` (server-only; client-credentials token
   cached until expiry; returns pass/fail only). `/verify`: consent screen -> `kyc_grant_consent` RPC -> `kyc_begin_check`

@@ -63,12 +63,12 @@ export type Trust = {
 };
 
 const LIST_COLUMNS =
-  "id,title,area,room_type,amenities,distance_to_gate_m,nearest_gate,rent_kobo,agent_fee_kobo,is_demo" as const;
+  "id,title,area,room_type,amenities,distance_to_gate_m,nearest_gate,rent_kobo,agent_fee_kobo,commitment_fee_pct,is_demo" as const;
 
 export type LodgeSummary = Pick<
   Tables<"lodges">,
   | "id" | "title" | "area" | "room_type" | "amenities" | "distance_to_gate_m"
-  | "nearest_gate" | "rent_kobo" | "agent_fee_kobo" | "is_demo"
+  | "nearest_gate" | "rent_kobo" | "agent_fee_kobo" | "commitment_fee_pct" | "is_demo"
 >;
 
 async function trustFor(ids: string[]): Promise<Map<string, Trust>> {

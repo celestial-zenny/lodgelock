@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { io } from "next/cache";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
@@ -13,6 +14,10 @@ function env(name: string): string {
 /** Acts as the signed-in user (or anon). RLS applies. Use this by default. */
 export async function createUserClient() {
   const cookieStore = await cookies();
+  // supabase-js reads Date.now() to check session expiry (getClaims/getSession). With Cache Components +
+  // Partial Prefetching, cookies() can resolve during a runtime prerender, so that read would land in the
+  // prerender ("Blocking Route: Date.now()"). io() suspends here during prerendering and is a no-op at request time.
+  await io();
   return createServerClient<Database>(
     env("NEXT_PUBLIC_SUPABASE_URL"),
     env("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),

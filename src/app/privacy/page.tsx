@@ -52,8 +52,9 @@ export default function PrivacyPage() {
         <h2 className="text-base font-semibold">Terms (summary)</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>LodgeLock is a booking platform. We never hold your money ourselves. A licensed payment partner holds it.</li>
-          <li>Rent is released to the landlord when you confirm move-in, or automatically if you don&apos;t respond within 72 hours of payment.</li>
-          <li>If the lodge doesn&apos;t match the listing, raise a dispute within 72 hours. Disputed payments are held until we resolve them.</li>
+          <li>Rent is released to the landlord when both you and the landlord confirm in the app that the keys were handed over. If the landlord confirms and you don&apos;t respond within 72 hours, it&apos;s released automatically.</li>
+          <li>If the lodge doesn&apos;t match the listing, raise a dispute instead of confirming (and within 72 hours of the landlord&apos;s confirmation). Disputed payments are held until we resolve them.</li>
+          <li>Some landlords charge a commitment fee (10–20% of rent). If so, it&apos;s shown before you pay, goes to the landlord when you pay, and isn&apos;t held.</li>
           <li>Agent fees can&apos;t exceed 5% of annual rent.</li>
         </ul>
       </section>
