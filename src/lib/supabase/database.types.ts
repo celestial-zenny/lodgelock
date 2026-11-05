@@ -73,8 +73,10 @@ export type Database = {
       bookings: {
         Row: {
           agent_fee_kobo: number
+          commitment_fee_kobo: number
           created_at: string
           id: string
+          landlord_keys_confirmed_at: string | null
           lodge_id: string
           move_in_deadline: string | null
           paid_at: string | null
@@ -82,13 +84,16 @@ export type Database = {
           rent_kobo: number
           status: Database["public"]["Enums"]["booking_status"]
           student_id: string
+          student_keys_confirmed_at: string | null
           total_kobo: number | null
           updated_at: string
         }
         Insert: {
           agent_fee_kobo: number
+          commitment_fee_kobo?: number
           created_at?: string
           id?: string
+          landlord_keys_confirmed_at?: string | null
           lodge_id: string
           move_in_deadline?: string | null
           paid_at?: string | null
@@ -96,13 +101,16 @@ export type Database = {
           rent_kobo: number
           status?: Database["public"]["Enums"]["booking_status"]
           student_id: string
+          student_keys_confirmed_at?: string | null
           total_kobo?: number | null
           updated_at?: string
         }
         Update: {
           agent_fee_kobo?: number
+          commitment_fee_kobo?: number
           created_at?: string
           id?: string
+          landlord_keys_confirmed_at?: string | null
           lodge_id?: string
           move_in_deadline?: string | null
           paid_at?: string | null
@@ -110,6 +118,7 @@ export type Database = {
           rent_kobo?: number
           status?: Database["public"]["Enums"]["booking_status"]
           student_id?: string
+          student_keys_confirmed_at?: string | null
           total_kobo?: number | null
           updated_at?: string
         }
@@ -536,6 +545,7 @@ export type Database = {
           agent_id: string | null
           amenities: string[]
           area: string
+          commitment_fee_pct: number
           created_at: string
           description: string
           distance_to_gate_m: number | null
@@ -555,6 +565,7 @@ export type Database = {
           agent_id?: string | null
           amenities?: string[]
           area: string
+          commitment_fee_pct?: number
           created_at?: string
           description?: string
           distance_to_gate_m?: number | null
@@ -574,6 +585,7 @@ export type Database = {
           agent_id?: string | null
           amenities?: string[]
           area?: string
+          commitment_fee_pct?: number
           created_at?: string
           description?: string
           distance_to_gate_m?: number | null
@@ -802,7 +814,11 @@ export type Database = {
         Args: { p_amount_kobo: number | null; p_provider_ref: string | null; p_response_code: string | null; p_txn_ref: string }
         Returns: string
       }
-      confirm_move_in: { Args: { p_booking: string }; Returns: undefined }
+      run_auto_confirm: { Args: never; Returns: number }
+      confirm_keys_handover: {
+        Args: { p_booking: string }
+        Returns: Database["public"]["Enums"]["booking_status"]
+      }
       lodge_trust: {
         Args: { p_lodge_ids: string[] }
         Returns: {

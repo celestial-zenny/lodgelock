@@ -25,6 +25,12 @@ export const TRANSITIONS: Readonly<Record<BookingStatus, readonly BookingStatus[
   CANCELLED: [],
 };
 
+/**
+ * Release rule: payout is booked the moment BOTH the student and the landlord/agent confirm "keys handed over"
+ * (PAID_HELD -> MOVE_IN_CONFIRMED). Fallback only: if the landlord confirmed and the student neither confirms nor
+ * disputes within this many hours of the landlord's confirmation, the booking is AUTO_CONFIRMED.
+ * Enforced in public.confirm_keys_handover / private.auto_confirm_expired (0005).
+ */
 export const MOVE_IN_WINDOW_HOURS = 72;
 
 export function canTransition(from: BookingStatus, to: BookingStatus): boolean {
@@ -38,10 +44,10 @@ export function isTerminal(status: BookingStatus): boolean {
 /** Student-facing copy for each state. */
 export const STATUS_LABEL: Record<BookingStatus, string> = {
   DRAFT: "Not paid yet",
-  PAID_HELD: "Paid — rent held until you move in",
-  MOVE_IN_CONFIRMED: "Move-in confirmed",
+  PAID_HELD: "Paid — rent held until keys are handed over",
+  MOVE_IN_CONFIRMED: "Keys handed over — landlord payout released",
   DISPUTED: "Dispute under review",
-  AUTO_CONFIRMED: "Auto-confirmed (no response in 72h)",
+  AUTO_CONFIRMED: "Auto-confirmed (no student response within 72h of handover)",
   REFUNDED: "Refunded",
   PAID_OUT: "Landlord paid",
   CANCELLED: "Cancelled",
