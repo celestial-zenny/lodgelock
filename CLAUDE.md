@@ -71,7 +71,8 @@ Source of truth: `supabase/migrations/0001_init.sql` (`booking_transitions` tabl
   are applied in order; demo data in `supabase/seed.sql` (idempotent, lodges flagged `is_demo`).
 - After any migration, regenerate `src/lib/supabase/database.types.ts` and re-run the security advisor.
 - Helper/trigger functions live in the non-exposed `private` schema. Only intentional RPCs stay in `public`
-  (`confirm_move_in`, `raise_dispute`, `lodge_trust`).
+  (`confirm_move_in`, `raise_dispute`, `lodge_trust`, `create_booking`, `begin_payment`, `kyc_grant_consent`,
+  `kyc_begin_check`, `decide_kyc_review`; service-role only: `record_payment`, `record_kyc_submission`).
 - Profiles are created only by the `on_auth_user_created` trigger from sign-up metadata. DOB is never stored.
 - Next 16 + `cacheComponents`: anything reading cookies/params/searchParams must render inside `<Suspense>`;
   session refresh lives in `src/proxy.ts` (middleware was renamed to proxy). Run `npx next typegen` for `PageProps`.
@@ -79,4 +80,9 @@ Source of truth: `supabase/migrations/0001_init.sql` (`booking_transitions` tabl
   attempt, server-set amount) -> inline checkout -> `settlePayment()` requeries Interswitch -> `record_payment` RPC
   (service role only; idempotent; DRAFT -> PAID_HELD + balanced ledger). The webhook only triggers a requery.
   Interswitch config refuses non-TEST mode and non-sandbox hosts (`src/lib/interswitch/config.ts`).
+- KYC (Interswitch API Marketplace, sandbox): `src/lib/interswitch/marketplace.ts` (server-only; client-credentials token
+  cached until expiry; returns pass/fail only). `/verify`: consent screen -> `kyc_grant_consent` RPC -> `kyc_begin_check`
+  (rate limit) -> NIN -> BVN Boolean Match -> bank account -> `record_kyc_submission` (service role only) -> `kyc_reviews`
+  queue -> admin `/admin/kyc` -> `decide_kyc_review` sets `profiles.identity_verified_at`. Marketplace URLs/paths are
+  env-overridable; non-sandbox hosts are refused.
 - Rate limits are enforced inside DB functions via `private.hit_rate_limit` (create_booking, begin_payment: 10/hour/user).
