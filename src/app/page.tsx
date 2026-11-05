@@ -2,8 +2,8 @@ import Link from "next/link";
 
 const STEPS = [
   { title: "Browse verified lodges", body: "Every landlord and agent proves their identity. Student scouts inspect lodges in person." },
-  { title: "Pay. Your rent is held", body: "The money sits with a licensed payment partner, not with the landlord, until the keys are handed over." },
-  { title: "Get the keys, both confirm", body: "If the lodge matches the listing, you and the landlord both tap Keys handed over and the landlord is paid the same day. If not, raise a dispute." },
+  { title: "Pay. Your rent is held", body: "The money sits with a licensed payment partner, not with the landlord, until you move in." },
+  { title: "Get the keys, then confirm", body: "If the lodge matches the listing, confirm and the landlord is paid straight away. If not, raise a dispute." },
 ];
 
 export default function Home() {

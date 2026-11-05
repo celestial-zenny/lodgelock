@@ -14,7 +14,7 @@ export function TrustBadges({ trust, isDemo }: { trust: Trust | null; isDemo: bo
     <div className="flex flex-wrap gap-1.5">
       {trust?.ownerVerified && <Badge tone="brand">✓ ID-verified {trust.ownerRole === "agent" ? "agent" : "landlord"}</Badge>}
       {trust?.inspectedAt ? <Badge tone="brand">✓ Scout-inspected</Badge> : <Badge tone="muted">Not yet inspected</Badge>}
-      {isDemo && <Badge tone="warn">Demo listing</Badge>}
+      {isDemo && <Badge tone="warn">Demo listing · Illustrative price</Badge>}
     </div>
   );
 }
