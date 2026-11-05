@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { AMENITY_LABEL, CHECKLIST_LABEL, GATE_LABEL, ROOM_TYPE_LABEL, getLodge, walkingMinutes } from "@/lib/lodges";
 import { AGENT_FEE_CAP_DIVISOR, commitmentFeeKobo, formatNaira } from "@/lib/booking/money";
-import { MOVE_IN_WINDOW_HOURS } from "@/lib/booking/state-machine";
+import { AUTO_RELEASE_HOURS, CANCEL_GRACE_HOURS, LATE_CANCEL_PCT } from "@/lib/booking/state-machine";
 import { createUserClient } from "@/lib/supabase/server";
 import { Badge, TrustBadges } from "@/components/lodge-badges";
 import { LodgeVisual } from "@/components/lodge-visual";
@@ -68,7 +68,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
           )}
           <div className="mt-3"><TrustBadges trust={t} isDemo={lodge.is_demo} /></div>
           {lodge.is_demo && (
-            <p className="mt-2 text-xs text-warn">Sample listing for the LodgeLock prototype. It isn&apos;t a real lodge.</p>
+            <p className="mt-2 text-xs text-warn">Sample listing for the LodgeLock prototype. It isn&apos;t a real lodge, and the price is illustrative.</p>
           )}
         </div>
 
@@ -98,9 +98,13 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
           <h2 id="protect" className="font-semibold text-brand">How your rent is protected</h2>
           <ol className="mt-3 space-y-2 text-sm">
             <li><b>1. You pay through LodgeLock.</b> Our licensed payment partner holds the money. The landlord doesn&apos;t get it yet.</li>
-            <li><b>2. You check the lodge and collect the keys.</b> If it matches this listing, you and the landlord both tap <i>Keys handed over</i> in the app.</li>
-            <li><b>3. The landlord gets paid the same day</b>, once you&apos;ve both confirmed. If it doesn&apos;t match, raise a dispute instead and we review it before any money moves.</li>
-            <li className="text-muted">If the landlord confirms the handover and you don&apos;t respond within {MOVE_IN_WINDOW_HOURS} hours, the booking is confirmed automatically.</li>
+            <li><b>2. You collect the keys and check the lodge.</b> The landlord, agent or caretaker marks the keys handed over.</li>
+            <li><b>3. You confirm and the landlord is paid.</b> If it doesn&apos;t match the listing, raise a dispute instead and we review it before any money moves.</li>
+            <li className="text-muted">If you don&apos;t confirm or dispute within {AUTO_RELEASE_HOURS} hours of the handover, the payment is released automatically.</li>
+            <li className="text-muted">
+              Changed your mind? Cancel free within {CANCEL_GRACE_HOURS} hours of paying (before you get the keys). After that the landlord keeps {LATE_CANCEL_PCT}% of rent
+              and the rest is refunded. If you never confirm and no handover happens, the booking is cancelled the same way 7 days after your move-in date.
+            </li>
           </ol>
         </section>
 
@@ -141,7 +145,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
             </>
           ) : (
             <p className="text-sm text-muted">
-              No scout has inspected this lodge yet. You&apos;re still protected: your rent is held until you confirm the keys were handed over.
+              No scout has inspected this lodge yet. You&apos;re still protected: your rent is held until you confirm you&apos;ve moved in.
             </p>
           )}
         </section>
@@ -169,7 +173,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-1">
           <div className="text-sm">
             <div className="font-semibold">{formatNaira(total)}</div>
-            <div className="text-xs text-muted">{commitment > 0 ? `${formatNaira(total - commitment)} held until keys are handed over` : "held until keys are handed over"}</div>
+            <div className="text-xs text-muted">{commitment > 0 ? `${formatNaira(total - commitment)} held until you move in` : "held until you move in"}</div>
           </div>
           {signedIn ? (
             <BookButton lodgeId={lodge.id} />

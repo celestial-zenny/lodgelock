@@ -3,8 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 
 /**
- * 72h fallback: confirms bookings where the landlord confirmed the keys handover and the student neither
- * confirmed nor disputed within 72h of that. Vercel Cron calls this with `Authorization: Bearer $CRON_SECRET`.
+ * Booking deadlines (private.process_deadlines): auto-release 48h after a handover with no student response, and
+ * no-show cancellation 7 days after the move-in date with no handover. Vercel Cron calls this with
+ * `Authorization: Bearer $CRON_SECRET`.
  */
 export async function GET(request: NextRequest) {
   const secret = process.env.CRON_SECRET;
@@ -22,10 +23,10 @@ export async function GET(request: NextRequest) {
     console.error((e as Error).message);
     return NextResponse.json({ error: "not configured" }, { status: 503 });
   }
-  const { data, error } = await db.rpc("run_auto_confirm");
+  const { data, error } = await db.rpc("run_booking_deadlines");
   if (error) {
-    console.error("run_auto_confirm failed", { code: error.code });
+    console.error("run_booking_deadlines failed", { code: error.code });
     return NextResponse.json({ error: "failed" }, { status: 500 });
   }
-  return NextResponse.json({ ok: true, autoConfirmed: data });
+  return NextResponse.json({ ok: true, ...(data as object) });
 }

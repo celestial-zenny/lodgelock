@@ -19,20 +19,43 @@ function dbErrorMessage(message: string | undefined): string {
   if (message?.includes("only students")) return "Only student accounts can book lodges.";
   if (message?.includes("not bookable")) return "This lodge isn't available to book right now.";
   if (message?.includes("not awaiting payment")) return "This booking has already been paid or closed.";
+  if (message?.includes("move-in date")) return "Choose a move-in date between today and about a year from now.";
+  if (message?.includes("renewal must follow")) return "You can only renew a lodge you've already moved into.";
+  if (message?.includes("bookings_one_renewal") || message?.includes("duplicate key")) return "You've already started a renewal for this tenancy.";
   return "Something went wrong. Please try again.";
 }
 
 export type BookState = { error?: string } | null;
 
+/** Lagos calendar date, YYYY-MM-DD. */
+function lagosToday(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Lagos" }).format(new Date());
+}
+
+const BookInput = z.object({
+  lodgeId: z.uuid(),
+  moveInDate: z.iso.date({ message: "Choose your move-in date" }),
+  renewalOf: z.uuid().optional(),
+});
+
 export async function createBooking(_prev: BookState, formData: FormData): Promise<BookState> {
-  const lodgeId = Uuid.safeParse(formData.get("lodgeId"));
-  if (!lodgeId.success) return { error: "Invalid lodge." };
+  const parsed = BookInput.safeParse({
+    lodgeId: formData.get("lodgeId"),
+    moveInDate: formData.get("moveInDate"),
+    renewalOf: formData.get("renewalOf") || undefined,
+  });
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the form." };
+  if (parsed.data.moveInDate < lagosToday()) return { error: "Move-in date can't be in the past." };
 
   const supabase = await createUserClient();
   const { data: auth } = await supabase.auth.getClaims();
-  if (!auth?.claims) redirect(`/login?next=/lodges/${lodgeId.data}`);
+  if (!auth?.claims) redirect(`/login?next=/lodges/${parsed.data.lodgeId}`);
 
-  const { data: bookingId, error } = await supabase.rpc("create_booking", { p_lodge: lodgeId.data });
+  const { data: bookingId, error } = await supabase.rpc("create_booking", {
+    p_lodge: parsed.data.lodgeId,
+    p_move_in_date: parsed.data.moveInDate,
+    p_renewal_of: parsed.data.renewalOf,
+  });
   if (error || !bookingId) return { error: dbErrorMessage(error?.message) };
   redirect(`/bookings/${bookingId}`);
 }
@@ -116,24 +139,44 @@ export async function verifyPayment(bookingId: string, txnRef: string): Promise<
   return { outcome: await settlePayment(attempt.txn_ref) };
 }
 
-export type HandoverState = { error?: string; status?: string } | null;
+export type ActionState = { error?: string; done?: string } | null;
 
-/** Student or landlord/agent taps "Keys handed over". The DB decides who they are and releases when both have. */
-export async function confirmHandover(_prev: HandoverState, formData: FormData): Promise<HandoverState> {
+async function bookingRpc(
+  formData: FormData,
+  rpc: "confirm_move_in" | "mark_handover" | "cancel_booking",
+): Promise<ActionState> {
   const id = Uuid.safeParse(formData.get("bookingId"));
   if (!id.success) return { error: "Invalid booking." };
   const supabase = await createUserClient();
   const { data: auth } = await supabase.auth.getClaims();
   if (!auth?.claims) redirect(`/login?next=/bookings/${id.data}`);
 
-  const { data: status, error } = await supabase.rpc("confirm_keys_handover", { p_booking: id.data });
+  const { data, error } = await supabase.rpc(rpc, { p_booking: id.data });
   if (error) {
-    if (error.message.includes("not awaiting handover")) return { error: "This booking is no longer waiting for a handover." };
-    return { error: "We couldn't save your confirmation. Please try again." };
+    if (/not awaiting|can't be cancelled/.test(error.message)) {
+      return { error: "This booking has already moved on. Refresh the page." };
+    }
+    return { error: "We couldn't save that. Please try again." };
   }
   revalidatePath(`/bookings/${id.data}`);
   revalidatePath("/bookings");
-  return { status };
+  return { done: String(data) };
+}
+
+/** Student: "I've moved in and the lodge matches" -> payout released now. */
+export async function confirmMoveIn(_prev: ActionState, formData: FormData) {
+  return bookingRpc(formData, "confirm_move_in");
+}
+
+/** Landlord, agent or caretaker: "Keys handed over" -> starts the 48h auto-release clock. */
+export async function markHandover(_prev: ActionState, formData: FormData) {
+  return bookingRpc(formData, "mark_handover");
+}
+
+/** Student cancels (no landlord fault). The DB decides grace vs late and books the refund. */
+export async function cancelBooking(_prev: ActionState, formData: FormData) {
+  if (formData.get("confirm") !== "on") return { error: "Tick the box to confirm you want to cancel." };
+  return bookingRpc(formData, "cancel_booking");
 }
 
 const DisputeInput = z.object({

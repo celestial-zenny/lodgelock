@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /** Bump when the privacy policy / terms change materially; stored with each consent. */
-export const POLICY_VERSION = "2026-11-04";
+export const POLICY_VERSION = "2026-11-05";
 
 /** NDPA 2023: a "child" is under 18. Below MIN_AGE we don't allow sign-up at all. */
 export const ADULT_AGE = 18;
@@ -48,7 +48,7 @@ export const SignupSchema = z
     email: z.email("Enter a valid email").max(254).transform((v) => v.toLowerCase()),
     password: z.string().min(8, "Use at least 8 characters").max(72),
     phone: z.union([z.literal("").transform(() => undefined), phone]).optional(),
-    role: z.enum(["student", "landlord", "agent"]).default("student"),
+    role: z.enum(["student", "landlord", "agent", "caretaker"]).default("student"),
     dob: z.iso.date("Enter your date of birth"),
     guardianName: z.string().trim().max(120).optional(),
     guardianPhone: z.string().trim().optional(),
@@ -69,7 +69,7 @@ export const SignupSchema = z
     const isAdult = age >= ADULT_AGE;
     if (!isAdult) {
       if (v.role !== "student") {
-        ctx.addIssue({ code: "custom", path: ["role"], message: "Landlords and agents must be 18 or older" });
+        ctx.addIssue({ code: "custom", path: ["role"], message: "Landlords, agents and caretakers must be 18 or older" });
       }
       if (!v.guardianName || v.guardianName.length < 2) {
         ctx.addIssue({ code: "custom", path: ["guardianName"], message: "Enter your parent or guardian's name" });
