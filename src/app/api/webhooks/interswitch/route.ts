@@ -3,6 +3,7 @@ import { interswitchConfig } from "@/lib/interswitch/config";
 import { verifyInterswitchSignature, webhookEventRef, webhookTxnRef } from "@/lib/interswitch/webhook";
 import { settlePayment } from "@/lib/payments/settle";
 import { createServiceClient } from "@/lib/supabase/server";
+import { dbFailure } from "@/lib/db-error";
 
 export async function POST(request: NextRequest) {
   const secret = interswitchConfig().webhookSecret;
@@ -41,6 +42,7 @@ export async function POST(request: NextRequest) {
       { onConflict: "provider,event_ref", ignoreDuplicates: true },
     )
     .select("id");
+  if (error) dbFailure("Storing Interswitch webhook event", error);
   if (error) return NextResponse.json({ error: "storage" }, { status: 500 }); // let Interswitch retry
   if (!inserted || inserted.length === 0) return NextResponse.json({ ok: true, duplicate: true });
 

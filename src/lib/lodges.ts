@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { createUserClient } from "@/lib/supabase/server";
+import { dbFailure } from "@/lib/db-error";
 import type { Enums, Tables } from "@/lib/supabase/database.types";
 
 export const AREAS = ["Eziobodo", "Umuchima", "Ihiagwa"] as const;
@@ -76,7 +77,7 @@ async function trustFor(ids: string[]): Promise<Map<string, Trust>> {
   if (ids.length === 0) return map;
   const supabase = await createUserClient();
   const { data, error } = await supabase.rpc("lodge_trust", { p_lodge_ids: ids });
-  if (error) throw new Error("Could not load verification details");
+  if (error) throw dbFailure("Loading lodge verification details", error);
   for (const t of data ?? []) {
     map.set(t.lodge_id, {
       ownerFirstName: t.owner_first_name,
@@ -103,7 +104,7 @@ export async function listLodges(filters: LodgeFilters) {
   if (filters.room) q = q.eq("room_type", filters.room);
   if (filters.max) q = q.lte("rent_kobo", filters.max);
   const { data, error } = await q;
-  if (error) throw new Error("Could not load lodges");
+  if (error) throw dbFailure("Loading lodges", error);
   const trust = await trustFor(data.map((l) => l.id));
   return data.map((l) => ({ ...l, trust: trust.get(l.id) ?? null }));
 }
@@ -117,7 +118,7 @@ export async function getLodge(id: string) {
     .eq("id", id)
     .eq("status", "verified")
     .maybeSingle();
-  if (error) throw new Error("Could not load lodge");
+  if (error) throw dbFailure("Loading lodge", error);
   if (!data) return null;
   const trust = await trustFor([data.id]);
   return { ...data, trust: trust.get(data.id) ?? null };

@@ -1,6 +1,7 @@
 import "server-only";
 import { createServiceClient } from "@/lib/supabase/server";
 import { requeryTransaction } from "@/lib/interswitch/requery";
+import { dbFailure } from "@/lib/db-error";
 
 export type SettleOutcome =
   | "paid"
@@ -29,7 +30,10 @@ export async function settlePayment(txnRef: string): Promise<SettleOutcome> {
     .select("txn_ref, amount_kobo, status")
     .eq("txn_ref", txnRef)
     .maybeSingle();
-  if (error) return "error";
+  if (error) {
+    dbFailure("Loading payment attempt", error);
+    return "error";
+  }
   if (!attempt) return "unknown_ref";
   if (attempt.status === "succeeded") return "already_paid";
 
