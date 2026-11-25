@@ -3,40 +3,12 @@ import { z } from "zod";
 import { createUserClient } from "@/lib/supabase/server";
 import { dbFailure } from "@/lib/db-error";
 import type { Enums, Tables } from "@/lib/supabase/database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/supabase/database.types";
 
-export const AREAS = ["Eziobodo", "Umuchima", "Ihiagwa"] as const;
-
-export const ROOM_TYPE_LABEL: Record<Enums<"room_type">, string> = {
-  single_room: "Single room",
-  self_contain: "Self-contain",
-  room_and_parlour: "Room & parlour",
-  flat: "Flat",
-};
-
-export const AMENITY_LABEL: Record<string, string> = {
-  prepaid_meter: "Prepaid meter",
-  borehole: "Borehole water",
-  fenced: "Fenced compound",
-  security: "Security guard",
-  tiled: "Tiled floors",
-  pop_ceiling: "POP ceiling",
-  kitchenette: "Kitchenette",
-  kitchen: "Kitchen",
-  shared_kitchen: "Shared kitchen",
-  shared_bathroom: "Shared bathroom",
-  wardrobe: "Wardrobe",
-  solar_backup: "Solar backup",
-  parking: "Parking",
-};
-
-export const CHECKLIST_LABEL: Record<string, string> = {
-  matches_listing: "Matches the listing",
-  water_running: "Water running",
-  power_working: "Power working",
-  doors_lock: "Doors and windows lock",
-  no_leaks: "No roof leaks",
-  toilet_working: "Toilet and shower work",
-};
+// Catalogue lives in the shared module so the listing form can use it too; re-exported for existing pages.
+import { AREAS, PHOTO_BUCKET } from "@/lib/listing";
+export { AREAS, ROOM_TYPE_LABEL, AMENITY_LABEL, CHECKLIST_LABEL } from "@/lib/listing";
 
 export const GATE_LABEL: Record<string, string> = { main_gate: "main gate", back_gate: "back gate" };
 
@@ -92,6 +64,32 @@ async function trustFor(ids: string[]): Promise<Map<string, Trust>> {
   return map;
 }
 
+export type LodgePhoto = { id: string; url: string };
+
+/** Signed URLs (1 hour) for each lodge's photos, in display order. Storage RLS decides who may see them. */
+async function photosFor(supabase: SupabaseClient<Database>, ids: string[]): Promise<Map<string, LodgePhoto[]>> {
+  const map = new Map<string, LodgePhoto[]>();
+  if (ids.length === 0) return map;
+  const { data: rows, error } = await supabase
+    .from("lodge_photos")
+    .select("id,lodge_id,storage_path,position")
+    .in("lodge_id", ids)
+    .order("position");
+  if (error) throw dbFailure("Loading lodge photos", error);
+  if (!rows.length) return map;
+  const { data: signed, error: signError } = await supabase.storage
+    .from(PHOTO_BUCKET)
+    .createSignedUrls(rows.map((r) => r.storage_path), 3600);
+  if (signError) throw dbFailure("Signing lodge photo URLs", { message: signError.message });
+  const urlByPath = new Map((signed ?? []).filter((s) => s.signedUrl).map((s) => [s.path, s.signedUrl]));
+  for (const r of rows) {
+    const url = urlByPath.get(r.storage_path);
+    if (!url) continue;
+    map.set(r.lodge_id, [...(map.get(r.lodge_id) ?? []), { id: r.id, url }]);
+  }
+  return map;
+}
+
 export async function listLodges(filters: LodgeFilters) {
   const supabase = await createUserClient();
   let q = supabase
@@ -105,8 +103,9 @@ export async function listLodges(filters: LodgeFilters) {
   if (filters.max) q = q.lte("rent_kobo", filters.max);
   const { data, error } = await q;
   if (error) throw dbFailure("Loading lodges", error);
-  const trust = await trustFor(data.map((l) => l.id));
-  return data.map((l) => ({ ...l, trust: trust.get(l.id) ?? null }));
+  const ids = data.map((l) => l.id);
+  const [trust, photos] = await Promise.all([trustFor(ids), photosFor(supabase, ids)]);
+  return data.map((l) => ({ ...l, trust: trust.get(l.id) ?? null, coverUrl: photos.get(l.id)?.[0]?.url ?? null }));
 }
 
 export async function getLodge(id: string) {
@@ -120,8 +119,8 @@ export async function getLodge(id: string) {
     .maybeSingle();
   if (error) throw dbFailure("Loading lodge", error);
   if (!data) return null;
-  const trust = await trustFor([data.id]);
-  return { ...data, trust: trust.get(data.id) ?? null };
+  const [trust, photos] = await Promise.all([trustFor([data.id]), photosFor(supabase, [data.id])]);
+  return { ...data, trust: trust.get(data.id) ?? null, photos: photos.get(data.id) ?? [] };
 }
 
 export function walkingMinutes(meters: number): number {

@@ -22,7 +22,7 @@
 | 7 | Payment webhooks | Provider event payload (no BVN/NIN) | Students, landlords | Contract (b) | `webhook_events` | 1 year |
 | 8 | Disputes | Dispute reason, evidence photos | Students, landlords | Contract (b); Legitimate interests (f) | `disputes`, Storage | 2 years after resolution |
 | 9a | Caretaker assignment | Caretaker account linked to a lodge (looked up by the email the landlord enters) | Caretakers | Contract (b); Legitimate interests (f) of the landlord | `lodges.caretaker_id` | While assigned |
-| 9 | Lodge listing & photos | Address, photos, price | Landlords/agents (and incidentally lodge) | Contract (b) | `lodges`, `lodge_photos`, Storage | While listed + 1 year |
+| 9 | Lodge listing & photos | Address, photos, price, fees; partner landlord/agent looked up by email (email not stored on the lodge) | Landlords/agents (and incidentally lodge) | Contract (b) | `lodges`, `lodge_photos`, private Storage bucket `lodge-photos` (signed URLs; drafts visible only to lister, admin, assigned scout) | While listed + 1 year |
 | 10 | Scout inspections | Checklist, photos, scout identity | Scouts | Contract (b) | `inspections`, Storage | 2 years |
 | 11 | Reviews | Rating, text, link to booking | Students | Legitimate interests (f) — honest information for other students | `reviews` | While lodge listed |
 | 12 | Analytics | Usage events | Opted-in users only | Consent (a) — **off by default** | _Not implemented_ | — |

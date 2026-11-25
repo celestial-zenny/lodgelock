@@ -50,6 +50,9 @@ async function AccountDetails() {
       {profile?.role === "admin" && (
         <Link href="/admin/kyc" className="block rounded-xl border border-line bg-surface p-4 font-medium">Identity approvals →</Link>
       )}
+      {profile?.role === "admin" && (
+        <Link href="/admin/lodges" className="block rounded-xl border border-line bg-surface p-4 font-medium">Lodge approvals →</Link>
+      )}
       <Link href="/bookings" className="block rounded-xl border border-line bg-surface p-4 font-medium">My bookings →</Link>
 
       <section aria-labelledby="del" className="space-y-3 rounded-xl border border-danger/30 p-4">

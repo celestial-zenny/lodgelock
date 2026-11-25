@@ -525,6 +525,7 @@ export type Database = {
           created_at: string
           id: string
           lodge_id: string
+          position: number
           storage_path: string
           uploaded_by: string
         }
@@ -532,6 +533,7 @@ export type Database = {
           created_at?: string
           id?: string
           lodge_id: string
+          position?: number
           storage_path: string
           uploaded_by: string
         }
@@ -539,6 +541,7 @@ export type Database = {
           created_at?: string
           id?: string
           lodge_id?: string
+          position?: number
           storage_path?: string
           uploaded_by?: string
         }
@@ -577,7 +580,9 @@ export type Database = {
           nearest_gate: string | null
           owner_id: string
           rent_kobo: number
+          review_note: string | null
           room_type: Database["public"]["Enums"]["room_type"]
+          submitted_at: string | null
           status: Database["public"]["Enums"]["lodge_status"]
           title: string
           updated_at: string
@@ -599,7 +604,9 @@ export type Database = {
           nearest_gate?: string | null
           owner_id: string
           rent_kobo: number
+          review_note?: string | null
           room_type?: Database["public"]["Enums"]["room_type"]
+          submitted_at?: string | null
           status?: Database["public"]["Enums"]["lodge_status"]
           title: string
           updated_at?: string
@@ -621,7 +628,9 @@ export type Database = {
           nearest_gate?: string | null
           owner_id?: string
           rent_kobo?: number
+          review_note?: string | null
           room_type?: Database["public"]["Enums"]["room_type"]
+          submitted_at?: string | null
           status?: Database["public"]["Enums"]["lodge_status"]
           title?: string
           updated_at?: string
@@ -870,6 +879,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_lodge_photo: { Args: { p_lodge: string; p_path: string }; Returns: string }
+      create_lodge: {
+        Args: {
+          p_address: string
+          p_agent_fee_kobo: number
+          p_amenities: string[]
+          p_area: string
+          p_commitment_fee_pct: number
+          p_description: string
+          p_distance_to_gate_m: number | null
+          p_landlord_commission_pct: number
+          p_nearest_gate: string | null
+          p_partner_email?: string | null
+          p_policy_version?: string | null
+          p_rent_kobo: number
+          p_rent_to_agent?: boolean
+          p_room_type: Database["public"]["Enums"]["room_type"]
+          p_title: string
+        }
+        Returns: string
+      }
+      remove_lodge_photo: { Args: { p_photo: string }; Returns: string }
+      review_lodge: { Args: { p_approve: boolean; p_lodge: string; p_note?: string | null }; Returns: undefined }
+      submit_lodge: { Args: { p_lodge: string }; Returns: undefined }
       begin_payment: {
         Args: { p_booking: string }
         Returns: { amount_kobo: number; txn_ref: string }[]
