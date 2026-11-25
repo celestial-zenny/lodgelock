@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { createUserClient } from "@/lib/supabase/server";
 import { DecisionForm } from "./decision-form";
+import { dbFailure } from "@/lib/db-error";
 
 export const metadata: Metadata = { title: "KYC approvals — LodgeLock admin" };
 
@@ -45,6 +46,7 @@ async function Queue() {
     .select("id,nin_passed,bvn_passed,bank_passed,all_passed,submitted_at,subject:profiles!kyc_reviews_subject_id_fkey(full_name,role)")
     .eq("status", "pending")
     .order("submitted_at");
+  if (error) dbFailure("Loading the KYC approval queue", error);
   if (error) return <p role="alert" className="text-danger">Couldn&apos;t load the queue.</p>;
   if (!reviews?.length) return <p className="text-muted">Nothing waiting for review.</p>;
 
