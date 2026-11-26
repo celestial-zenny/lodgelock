@@ -3,12 +3,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  bookingTerms, cancellationSplit, commitmentFeeKobo, heldKobo, maxAgentFeeKobo, releaseSplit, totalPaidKobo,
-  type BookingTerms,
+  AGENT_FEE_CAP_BPS, AGENT_FEE_CAP_PCT, LodgePriceInput, agentFeeWithinCap, bookingTerms, cancellationSplit,
+  commitmentFeeKobo, heldKobo, maxAgentFeeKobo, releaseSplit, totalPaidKobo, type BookingTerms,
 } from "./money.ts";
 
 const R = 30_000_000; // ₦300,000 in kobo
-const F = 1_500_000;  // 5% student-paid agent fee
+const F = 2_400_000;  // 8% student-paid agent fee (the cap)
 const base = { rentKobo: R, agentFeeKobo: F, hasAgent: true, commitmentFeePct: 0, landlordCommissionPct: 5, isRenewal: false };
 
 /** Every path must account for exactly what the student paid: nothing created, nothing lost. */
@@ -25,10 +25,28 @@ function assertConserved(t: BookingTerms) {
   }
 }
 
+test("agent fee cap is 8% of rent, same integer check as lodges.agent_fee_cap", () => {
+  assert.equal(AGENT_FEE_CAP_BPS, 800);
+  assert.equal(AGENT_FEE_CAP_PCT, 8);
+  assert.equal(maxAgentFeeKobo(R), 2_400_000);
+  assert.ok(agentFeeWithinCap(2_400_000, R), "exactly 8% is allowed");
+  assert.ok(!agentFeeWithinCap(2_400_001, R), "one kobo over 8% is rejected");
+  assert.ok(agentFeeWithinCap(0, R));
+  // Mirrors the DB constraint (agent_fee_kobo * 100 <= rent_kobo * 8) for awkward rents.
+  for (const rent of [1, 12, 13, 99, 15_000_001, 24_999_999, 33_333_333]) {
+    const max = maxAgentFeeKobo(rent);
+    assert.ok(max * 100 <= rent * 8 && (max + 1) * 100 > rent * 8, `max fee for ${rent}`);
+    assert.equal(agentFeeWithinCap(max, rent), true);
+    assert.equal(agentFeeWithinCap(max + 1, rent), false);
+  }
+  assert.equal(LodgePriceInput.safeParse({ rentKobo: R, agentFeeKobo: 2_400_000 }).success, true);
+  assert.equal(LodgePriceInput.safeParse({ rentKobo: R, agentFeeKobo: 2_400_001 }).success, false);
+});
+
 test("standard release: landlord gets rent minus 5% commission; agent gets fee + commission", () => {
   const t = bookingTerms(base);
   assert.equal(totalPaidKobo(t), R + F);
-  assert.deepEqual(releaseSplit(t), { rentToPayee: R - 1_500_000, agentFee: F, agentCommission: 1_500_000, toAgent: 3_000_000 });
+  assert.deepEqual(releaseSplit(t), { rentToPayee: R - 1_500_000, agentFee: F, agentCommission: 1_500_000, toAgent: 3_900_000 });
   assertConserved(t);
 });
 

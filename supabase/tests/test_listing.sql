@@ -108,8 +108,8 @@ begin
   -- ── fee and catalogue rules
   perform pg_temp.act(landlord);
   perform pg_temp.fails('select pg_temp.list(p_fee => 100000)', 'agent_fee_needs_agent', 'agent fee without an agent');
-  perform pg_temp.fails(format('select pg_temp.list(p_fee => 1250001, p_partner => %L)', e_agent),
-                        'agent_fee_cap', 'agent fee over 5%');
+  perform pg_temp.fails(format('select pg_temp.list(p_fee => 2000001, p_partner => %L)', e_agent),
+                        'agent_fee_cap', 'agent fee over 8%');
   perform pg_temp.fails('select pg_temp.list(p_commission => 11::smallint)', 'landlord_commission_pct_range', 'commission over 10%');
   perform pg_temp.fails('select pg_temp.list(p_commitment => 5::smallint)', 'commitment_fee_pct_range', 'commitment fee of 5%');
   perform pg_temp.fails($$select pg_temp.list(p_amenities => '{tiled,jacuzzi}')$$, 'lodges_amenities_known', 'unknown amenity');
@@ -117,11 +117,11 @@ begin
   perform pg_temp.fails(format('select pg_temp.list(p_partner => %L)', e_student), 'no agent account', 'partner who is not an agent');
 
   -- ── landlord with agent, fees, commitment and rent paid to the agent
-  l_agent := pg_temp.list(p_fee => 1250000, p_partner => upper(e_agent), p_rent_to_agent => true,
+  l_agent := pg_temp.list(p_fee => 2000000, p_partner => upper(e_agent), p_rent_to_agent => true,
                           p_commission => 7::smallint, p_commitment => 15::smallint);
   perform pg_temp.as_admin_db();
   select * into r from public.lodges where id = l_agent;
-  assert r.agent_id = agent and r.agent_fee_kobo = 1250000 and r.landlord_commission_pct = 7 and r.commitment_fee_pct = 15,
+  assert r.agent_id = agent and r.agent_fee_kobo = 2000000 and r.landlord_commission_pct = 7 and r.commitment_fee_pct = 15,
     'landlord-with-agent listing stores agent and fees';
   assert exists (select 1 from public.payee_mandates where lodge_id = l_agent and agent_id = agent and revoked_at is null),
     'rent-to-agent listing signs a payee mandate';

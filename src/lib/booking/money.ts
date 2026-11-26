@@ -3,11 +3,22 @@ import { z } from "zod";
 // All money is integer kobo. Never use floats for amounts.
 export const Kobo = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 
-/** Max agent fee as a fraction of rent. Keep in sync with lodges.agent_fee_cap in the migration. */
-export const AGENT_FEE_CAP_DIVISOR = 20; // 5%
+/**
+ * Max student-paid agent fee, in basis points of rent (800 = 8%).
+ * Keep in sync with lodges.agent_fee_cap (supabase/migrations/0009_agent_fee_cap_8pct.sql).
+ */
+export const AGENT_FEE_CAP_BPS = 800;
+/** The cap as a whole percentage, for copy. */
+export const AGENT_FEE_CAP_PCT = AGENT_FEE_CAP_BPS / 100;
 
+/** Same integer check as the DB: agent_fee_kobo * 100 <= rent_kobo * 8, i.e. fee * 10_000 <= rent * bps. */
+export function agentFeeWithinCap(agentFeeKobo: number, rentKobo: number): boolean {
+  return agentFeeKobo * 10_000 <= rentKobo * AGENT_FEE_CAP_BPS;
+}
+
+/** Largest fee that passes the cap: rounds down to whole kobo. */
 export function maxAgentFeeKobo(rentKobo: number): number {
-  return Math.floor(rentKobo / AGENT_FEE_CAP_DIVISOR);
+  return Math.floor((rentKobo * AGENT_FEE_CAP_BPS) / 10_000);
 }
 
 /**
@@ -98,7 +109,7 @@ export function formatNaira(kobo: number): string {
 
 export const LodgePriceInput = z
   .object({ rentKobo: Kobo.positive(), agentFeeKobo: Kobo })
-  .refine((v) => v.agentFeeKobo <= maxAgentFeeKobo(v.rentKobo), {
-    message: `Agent fee cannot exceed ${100 / AGENT_FEE_CAP_DIVISOR}% of rent`,
+  .refine((v) => agentFeeWithinCap(v.agentFeeKobo, v.rentKobo), {
+    message: `Agent fee cannot exceed ${AGENT_FEE_CAP_PCT}% of rent`,
     path: ["agentFeeKobo"],
   });
