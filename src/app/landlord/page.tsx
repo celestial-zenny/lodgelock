@@ -95,16 +95,15 @@ async function Content() {
           </div>
         )}
 
-        <ul className="grid grid-cols-3 gap-3" aria-label="Your listings">
+        <Link href="/landlord/listings" aria-label={`Your listings: ${stats.map((s) => `${s.value} ${s.label.toLowerCase()}`).join(", ")}`}
+          className={`${card} flex flex-wrap items-center gap-x-5 gap-y-2 px-4 py-3 text-sm hover:border-brand`}>
+          <span className="font-semibold">Your listings</span>
           {stats.map((s) => (
-            <li key={s.label}>
-              <Link href="/landlord/listings" className={`${card} block p-4 transition-colors hover:border-brand`}>
-                <span className="block font-display text-4xl font-extrabold leading-none tnum">{s.value}</span>
-                <span className="mt-1.5 block text-sm font-medium text-muted">{s.label}</span>
-              </Link>
-            </li>
+            <span key={s.label} className="inline-flex items-baseline gap-1.5 text-muted">
+              <span className="font-bold text-ink tnum">{s.value}</span>{s.label.toLowerCase()}
+            </span>
           ))}
-        </ul>
+        </Link>
 
         <section aria-labelledby="bk">
           <div className="flex items-baseline justify-between gap-3">
@@ -114,8 +113,8 @@ async function Content() {
           {bookings.length ? (
             <ul className="mt-3 space-y-2.5">
               {bookings.map((b) => (
-                <li key={b.id}>
-                  <Link href={`/bookings/${b.id}`} className={`${card} flex items-center justify-between gap-3 p-4 transition-colors hover:border-brand`}>
+                <li key={b.id} className="lift">
+                  <Link href={`/bookings/${b.id}`} className={`${card} flex items-center justify-between gap-3 p-4 hover:border-brand`}>
                     <span className="min-w-0">
                       <span className="block truncate font-bold">{b.lodges.title}</span>
                       <span className="block text-sm text-muted">Move-in {d.format(new Date(b.move_in_date))}</span>

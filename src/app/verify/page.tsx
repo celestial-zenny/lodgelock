@@ -6,6 +6,7 @@ import { createUserClient } from "@/lib/supabase/server";
 import { splitName } from "@/lib/kyc/schema";
 import { activeKycConsents } from "./state";
 import { ConsentForm, DetailsForm } from "./forms";
+import { Icon } from "@/components/icons";
 
 export const metadata: Metadata = { title: "Verify your identity — LodgeLock" };
 
@@ -52,7 +53,7 @@ async function VerifyStep() {
   if (profile.identity_verified_at) {
     return (
       <Notice>
-        <p className="font-semibold">You&apos;re verified ✓</p>
+        <p className="flex items-center gap-1.5 font-semibold"><Icon name="shield" width={18} height={18} />You&apos;re verified</p>
         <p>Approved on {d.format(new Date(profile.identity_verified_at))}. Students see a verified badge on your lodges.</p>
       </Notice>
     );

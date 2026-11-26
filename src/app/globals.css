@@ -64,6 +64,21 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
+  accent-color: var(--brand);
+  scrollbar-color: var(--line-strong) var(--paper);
+}
+
+/* Browser surfaces carry the palette too. */
+::selection {
+  background: var(--brass-soft);
+  color: var(--ink);
+}
+input, textarea {
+  caret-color: var(--brand);
+}
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
 }
 
 body {
@@ -89,6 +104,44 @@ body {
   outline: 3px solid var(--brand);
   outline-offset: 2px;
   border-radius: 6px;
+}
+/* On night surfaces an indigo ring disappears: use brass (9.5:1 on night). */
+.on-dark :focus-visible {
+  outline-color: var(--brass);
+}
+
+/* Skip link: hidden until focused. */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 60;
+  border-radius: 0.75rem;
+  background: var(--night);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* Hover and press: buttons step 1px up on a fine pointer and sink on press. */
+.press {
+  transition: transform 150ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 150ms, border-color 150ms, color 150ms;
+}
+.press:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+  transition-duration: 90ms;
+}
+/* Linked cards: the list item stays still (so the pointer never slips off) and its link lifts 2px. */
+.lift > a {
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 180ms;
+}
+@media (hover: hover) and (pointer: fine) {
+  .press:hover:not(:disabled) { transform: translateY(-1px); }
+  .press:active:not(:disabled) { transform: translateY(1px) scale(0.985); }
+  .lift:hover > a { transform: translateY(-2px); }
 }
 
 /* Keep focused elements clear of the sticky top bar and the mobile tab bar (WCAG 2.4.11). */

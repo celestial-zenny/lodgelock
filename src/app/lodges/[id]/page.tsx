@@ -32,7 +32,7 @@ export default function LodgePage({ params }: PageProps<"/lodges/[id]">) {
 function DetailSkeleton() {
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 pb-tabbar lg:px-6 lg:pt-6" role="status" aria-label="Loading lodge">
-      <Skeleton className="h-56 rounded-none sm:h-72 lg:rounded-3xl" />
+      <Skeleton className="h-56 rounded-none sm:h-72 lg:rounded-2xl" />
       <div className="grid gap-8 px-4 pt-5 lg:grid-cols-[1fr_22rem] lg:px-0">
         <div className="space-y-3">
           <Skeleton className="h-9 w-2/3" />
@@ -62,7 +62,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
     <main className="mx-auto w-full max-w-6xl flex-1 pb-tabbar lg:px-6 lg:pt-6">
       <div className="relative">
         {lodge.photos.length > 1 ? (
-          <ul className="flex snap-x snap-mandatory gap-2 overflow-x-auto lg:rounded-3xl" aria-label="Photos">
+          <ul className="flex snap-x snap-mandatory gap-2 overflow-x-auto lg:rounded-2xl" aria-label="Photos">
             {lodge.photos.map((p, i) => (
               <li key={p.id} className="h-64 w-[88%] shrink-0 snap-start sm:h-80 lg:w-[60%]">
                 {/* eslint-disable-next-line @next/next/no-img-element -- short-lived signed Supabase URLs */}
@@ -72,7 +72,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
           </ul>
         ) : (
           <LodgeVisual area={lodge.area} roomType={lodge.room_type} coverUrl={lodge.photos[0]?.url}
-            className="h-56 sm:h-72 lg:rounded-3xl" />
+            className="h-56 sm:h-72 lg:rounded-2xl" />
         )}
         <Link href="/lodges"
           className="absolute top-3 left-3 inline-flex min-h-10 items-center gap-1.5 rounded-full bg-surface/95 px-3.5 text-sm font-semibold text-ink shadow-sm">
@@ -107,7 +107,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
             <CommitmentNote commitment={commitment} pct={lodge.commitment_fee_pct} total={total} />
           </section>
 
-          <section aria-labelledby="protect" className="rounded-3xl bg-night p-5 text-white sm:p-7">
+          <section aria-labelledby="protect" className="on-dark rounded-2xl bg-night p-5 text-white sm:p-7">
             <h2 id="protect" className="font-display text-2xl font-extrabold">Your rent is held, not handed over</h2>
             <p className="mt-1.5 text-night-muted">LodgeLock&apos;s licensed payment partner keeps the money until you&apos;re in.</p>
             <RentTrack current={1} dark className="mt-6" />

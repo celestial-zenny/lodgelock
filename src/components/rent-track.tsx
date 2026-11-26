@@ -2,7 +2,7 @@ import { Icon, type IconName } from "@/components/icons";
 
 // The four money steps of a booking, drawn as a track. `current` is the index of the step the booking is at.
 const STEPS: { label: string; icon: IconName }[] = [
-  { label: "Not paid", icon: "bookings" },
+  { label: "Booked", icon: "bookings" },
   { label: "Rent held", icon: "lock" },
   { label: "Handed over", icon: "key" },
   { label: "Paid out", icon: "check" },
@@ -21,13 +21,13 @@ export function RentTrack({ current, dark = false, className = "" }: { current: 
             : dark ? "border border-white/30 text-white/60" : "border border-line-strong/60 text-muted";
         const bar = i < current ? (dark ? "bg-white/80" : "bg-brand") : dark ? "bg-white/20" : "bg-line";
         return (
-          <li key={s.label} className="relative flex flex-col items-center text-center" aria-current={now ? "step" : undefined}>
+          <li key={s.label} data-step={i} className="relative flex flex-col items-center text-center" aria-current={now ? "step" : undefined}>
             {i > 0 && (
               // Connector from the previous dot to this one (dots are 32px wide, 4px gap between columns).
-              <span aria-hidden className={`absolute top-[15px] h-0.5 rounded-full ${bar}`}
+              <span aria-hidden data-bar className={`absolute top-[15px] h-0.5 origin-left rounded-full ${bar}`}
                 style={{ right: "calc(50% + 20px)", width: "calc(100% - 36px)" }} />
             )}
-            <span className={`relative grid size-8 place-items-center rounded-full ${dot}`}>
+            <span data-dot className={`relative grid size-8 place-items-center rounded-full ${dot}`}>
               <Icon name={s.icon} width={16} height={16} strokeWidth={2.2} />
             </span>
             <span className={`mt-1.5 text-[0.72rem] font-semibold leading-tight ${now ? (dark ? "text-brass" : "text-ink") : dark ? "text-white/70" : "text-muted"}`}>

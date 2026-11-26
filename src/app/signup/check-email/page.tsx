@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { Icon } from "@/components/icons";
 
 export default function CheckEmailPage() {
   return (
     <main className="mx-auto w-full max-w-md flex-1 px-4 pt-12 pb-tabbar sm:px-6 text-center">
-      <div aria-hidden className="mx-auto mb-4 grid size-14 place-items-center rounded-full bg-brand-soft text-2xl">
-        ✉
+      <div aria-hidden className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-brand-soft text-brand">
+        <Icon name="bookings" width={28} height={28} />
       </div>
       <h1 className="font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">Check your email</h1>
       <p className="mt-2 text-muted">

@@ -56,9 +56,9 @@ async function BookingList() {
       {bookings.map((b) => {
         const chip = bookingChip(b.status as BookingStatus, b.handover_at);
         return (
-          <li key={b.id}>
+          <li key={b.id} className="lift">
             <Link href={`/bookings/${b.id}`}
-              className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4 transition-colors hover:border-brand">
+              className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4 hover:border-brand">
               <div className="min-w-0">
                 <p className="truncate text-lg font-bold">{b.lodges?.title}</p>
                 <p className="text-sm text-muted">

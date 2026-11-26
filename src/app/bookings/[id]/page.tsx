@@ -101,8 +101,7 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
       </div>
 
       <section aria-label="Where your money is" className={`${card} p-5`}>
-        {step !== null && <RentTrack current={step} />}
-        <p className={`${step !== null ? "mt-5 border-t border-line pt-4" : ""} text-sm font-medium`}>{STATUS_LABEL[status]}</p>
+        {step !== null ? <RentTrack current={step} /> : <p className="text-sm font-medium">{STATUS_LABEL[status]}</p>}
       </section>
 
       <dl className={`${card} space-y-2.5 p-5 text-sm tnum`}>
@@ -173,7 +172,7 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
             {events.map((e) => (
               <li key={e.id} className="relative">
                 <span aria-hidden className="absolute top-1.5 -left-[1.6rem] size-2.5 rounded-full bg-brand ring-4 ring-paper" />
-                <span className="block font-medium">{STATUS_LABEL[e.to_status as BookingStatus]}</span>
+                <span className="block font-medium">{EVENT_LABEL[e.to_status as BookingStatus]}</span>
                 <span className="text-muted">{dt.format(new Date(e.created_at))}</span>
               </li>
             ))}
@@ -185,6 +184,19 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
 }
 
 type Viewer = "student" | "landlord" | "agent" | "caretaker";
+
+/** History entries describe what happened, not the current state. */
+const EVENT_LABEL: Record<BookingStatus, string> = {
+  DRAFT: "Booked",
+  PAID_HELD: "Paid. Rent held",
+  MOVE_IN_CONFIRMED: "Move-in confirmed. Rent released",
+  DISPUTED: "Dispute raised",
+  AUTO_CONFIRMED: "Rent released automatically",
+  REFUNDED: "Refunded",
+  PAID_OUT: "Landlord paid",
+  CANCELLED: "Booking cancelled",
+  STUDENT_CANCELLED: "Cancelled. Refund issued",
+};
 
 type BookingRow = {
   id: string;
@@ -270,18 +282,18 @@ function HeldPanel(props: {
   const lateComp = Math.max(0, Math.floor(rentKobo / 10) - commitmentKobo);
   if (viewer !== "student") {
     return (
-      <section aria-labelledby="held" className="space-y-3 rounded-3xl bg-night p-5 text-sm text-night-muted sm:p-6">
+      <section aria-labelledby="held" className="on-dark space-y-3 rounded-2xl bg-night p-5 text-sm text-night-muted sm:p-6">
         <h2 id="held" className="flex items-center gap-2 font-display text-2xl font-extrabold text-white"><Icon name="lock" className="text-brass" />Rent paid and held</h2>
         {handoverAt ? (
           <p>
-            Keys handed over {dt.format(new Date(handoverAt))}. The payment is released when the student confirms, or
+            Keys handed over {dt.format(new Date(handoverAt))}. The rent is released when the student confirms, or
             automatically {autoReleaseAt && <>on <b className="text-white">{dt.format(new Date(autoReleaseAt))}</b></>} if they don&apos;t respond.
           </p>
         ) : (
           <>
-            <p>Hand over the keys, then tap below. The student confirms and the payment is released. If they don&apos;t respond within {AUTO_RELEASE_HOURS} hours, it&apos;s released automatically.</p>
+            <p>Hand over the keys, then mark it below. The rent is released when the student confirms, or automatically if they don&apos;t respond within {AUTO_RELEASE_HOURS} hours.</p>
             <div className="rounded-2xl bg-surface p-4 text-ink">
-              <RpcButton action="handover" bookingId={bookingId} label="Keys handed over" />
+              <RpcButton action="handover" bookingId={bookingId} label="Mark keys as handed over" />
             </div>
           </>
         )}
@@ -290,9 +302,9 @@ function HeldPanel(props: {
     );
   }
   return (
-    <section aria-labelledby="held" className="space-y-3 rounded-3xl bg-night p-5 text-sm text-night-muted sm:p-6">
-      <h2 id="held" className="flex items-center gap-2 font-display text-2xl font-extrabold text-white"><Icon name="lock" className="text-brass" />Payment received and held</h2>
-      <p>The landlord hasn&apos;t been paid. Collect your keys, check the lodge matches the listing, then confirm.</p>
+    <section aria-labelledby="held" className="on-dark space-y-3 rounded-2xl bg-night p-5 text-sm text-night-muted sm:p-6">
+      <h2 id="held" className="flex items-center gap-2 font-display text-2xl font-extrabold text-white"><Icon name="lock" className="text-brass" />Your rent is held</h2>
+      <p>The landlord hasn&apos;t been paid yet. Collect your keys and check the lodge against the listing.</p>
       {handoverAt && autoReleaseAt && (
         <p className="rounded-xl bg-brass px-3 py-2.5 font-medium text-night">
           Keys were marked handed over {dt.format(new Date(handoverAt))}. Confirm or raise a dispute by{" "}
@@ -300,7 +312,8 @@ function HeldPanel(props: {
         </p>
       )}
       <div className="space-y-3 rounded-2xl bg-surface p-4 text-ink">
-        <RpcButton action="confirm" bookingId={bookingId} label="I've moved in and it matches. Release payment" />
+        <p className="text-sm text-muted">Confirm only once you have the keys and the lodge matches the listing. The landlord is paid straight away.</p>
+        <RpcButton action="confirm" bookingId={bookingId} label="Confirm move-in and release rent" />
         <DisputeForm bookingId={bookingId} />
         <CancelForm bookingId={bookingId}
           graceNote={`Free within ${CANCEL_GRACE_HOURS} hours of paying, if you haven't received the keys. Otherwise the landlord keeps ${lateComp > 0 ? formatNaira(lateComp) : "nothing more"} (${LATE_CANCEL_PCT}% of rent${commitmentKobo > 0 ? ", less the commitment fee already paid" : ""}) and the rest is refunded.`} />

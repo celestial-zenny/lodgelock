@@ -81,9 +81,9 @@ async function LodgeResults({ searchParams }: { searchParams: PageProps<"/lodges
       ) : (
         <ul className="mt-3 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {lodges.map((l) => (
-            <li key={l.id}>
+            <li key={l.id} className="lift">
               <Link href={`/lodges/${l.id}`}
-                className="group block h-full overflow-hidden rounded-2xl border border-line bg-surface transition-colors hover:border-brand">
+                className="group block h-full overflow-hidden rounded-2xl border border-line bg-surface hover:border-brand">
                 <LodgeVisual area={l.area} roomType={l.room_type} coverUrl={l.coverUrl} className="h-40" />
                 <div className="space-y-3 p-4">
                   <div>

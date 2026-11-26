@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { AGENT_FEE_CAP_PCT, formatNaira } from "@/lib/booking/money";
 import { AUTO_RELEASE_HOURS, CANCEL_GRACE_HOURS, LATE_CANCEL_PCT } from "@/lib/booking/state-machine";
-import { Icon } from "@/components/icons";
-import { RentTrack } from "@/components/rent-track";
+import { HeroTicket } from "@/components/hero-ticket";
 import { btn } from "@/components/ui";
 
 // Example figures for the hero ticket: ₦350,000 rent with the maximum agent fee.
@@ -30,13 +29,12 @@ export default function Home() {
     <main className="flex-1 pb-tabbar">
       <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-8 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-14">
         <div>
-          <p className="text-sm font-semibold text-brand">For FUTO students in Eziobodo, Umuchima and Ihiagwa</p>
-          <h1 className="mt-3 font-display text-[2.75rem] font-extrabold leading-[0.95] text-ink sm:text-6xl lg:text-7xl">
+          <h1 className="font-display text-[2.75rem] font-extrabold leading-[0.95] text-ink sm:text-6xl lg:text-7xl">
             Don&apos;t pay for a lodge you haven&apos;t moved into.
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
-            LodgeLock holds your rent until you get the keys and confirm the lodge is what was promised.
-            Agent fees are capped at {AGENT_FEE_CAP_PCT}% and shown before you pay.
+            For FUTO students in Eziobodo, Umuchima and Ihiagwa. LodgeLock holds your rent until you get the keys
+            and confirm the lodge is what was promised. Agent fees are capped at {AGENT_FEE_CAP_PCT}% and shown before you pay.
           </p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <Link href="/lodges" className={btn.primary}>Browse lodges</Link>
@@ -66,7 +64,7 @@ export default function Home() {
       </section>
 
       <section aria-labelledby="listers" className="mx-auto mt-16 max-w-6xl px-4 sm:px-6">
-        <div className="grid gap-6 rounded-3xl bg-night p-6 text-white sm:p-10 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div className="on-dark grid gap-6 rounded-2xl bg-night p-6 text-white sm:p-10 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <h2 id="listers" className="font-display text-3xl font-extrabold">Landlords and agents</h2>
             <p className="mt-3 max-w-2xl text-night-muted">
@@ -82,32 +80,16 @@ export default function Home() {
   );
 }
 
-/** The hero's one bold element: what a held booking looks like. */
+/** The hero's one bold element: what a held booking looks like (animated in HeroTicket). */
 function ExampleTicket() {
   return (
-    <figure className="relative mx-auto w-full max-w-md lg:max-w-none">
-      <div className="relative overflow-hidden rounded-[1.75rem] bg-night p-6 text-white shadow-[0_30px_60px_-30px_rgba(19,21,58,0.7)] sm:p-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="font-semibold">Divine Grace Lodge</p>
-            <p className="text-sm text-night-muted">Self-contain, Eziobodo</p>
-          </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-brass px-3 py-1 text-xs font-bold text-night">
-            <Icon name="lock" width={14} height={14} strokeWidth={2.4} />Rent held
-          </span>
-        </div>
-        <p className="mt-8 text-sm text-night-muted">Held for you</p>
-        <p className="font-display text-5xl font-extrabold tnum sm:text-6xl">{formatNaira(EXAMPLE_RENT + EXAMPLE_FEE)}</p>
-        <p className="mt-1 text-sm text-night-muted">
-          {formatNaira(EXAMPLE_RENT)} rent + {formatNaira(EXAMPLE_FEE)} agent fee ({AGENT_FEE_CAP_PCT}%)
-        </p>
-        <div aria-hidden className="relative my-7 border-t-2 border-dashed border-white/20">
-          <span className="absolute -top-3 -left-9 size-6 rounded-full bg-paper" />
-          <span className="absolute -top-3 -right-9 size-6 rounded-full bg-paper" />
-        </div>
-        <RentTrack current={1} dark />
-        <p className="mt-6 text-sm text-night-muted">The landlord is paid after you collect the keys and confirm.</p>
-      </div>
+    <figure className="mx-auto w-full max-w-md lg:max-w-none">
+      <HeroTicket
+        title="Divine Grace Lodge"
+        place="Self-contain, Eziobodo"
+        total={formatNaira(EXAMPLE_RENT + EXAMPLE_FEE)}
+        breakdown={`${formatNaira(EXAMPLE_RENT)} rent + ${formatNaira(EXAMPLE_FEE)} agent fee (${AGENT_FEE_CAP_PCT}%)`}
+      />
       <figcaption className="mt-3 text-center text-sm text-muted">Example booking. Figures are illustrative.</figcaption>
     </figure>
   );

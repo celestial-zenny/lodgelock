@@ -11,7 +11,7 @@ import {
 
 const ACTIONS = { confirm: confirmMoveIn, handover: markHandover } as const;
 const DONE: Record<keyof typeof ACTIONS, string> = {
-  confirm: "Move-in confirmed. The landlord's payout is released.",
+  confirm: "Move-in confirmed. Rent released to the landlord.",
   handover: `Keys marked handed over. The student has ${AUTO_RELEASE_HOURS} hours to confirm or dispute.`,
 };
 
@@ -40,15 +40,16 @@ export function DisputeForm({ bookingId }: { bookingId: string }) {
   const wasPending = useRef(false);
   // raiseDispute returns null on success: toast when a submission finishes without an error.
   useEffect(() => {
-    if (wasPending.current && !pending && !state?.error) toast("Dispute raised. Your money stays held while we review it.");
+    if (wasPending.current && !pending && !state?.error) toast("Dispute raised. Your rent stays held while we review it.");
     wasPending.current = pending;
   }, [pending, state, toast]);
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className={`${btn.danger} w-full text-sm`}>
-        It doesn&apos;t match the listing: raise a dispute
-      </button>
+      <div className="space-y-1.5">
+        <button onClick={() => setOpen(true)} className={`${btn.danger} w-full`}>Raise a dispute</button>
+        <p className="text-center text-xs text-muted">If the lodge doesn&apos;t match the listing. Your rent stays held while we review.</p>
+      </div>
     );
   }
   return (
@@ -57,7 +58,7 @@ export function DisputeForm({ bookingId }: { bookingId: string }) {
       <label htmlFor="reason" className="block text-sm font-semibold">What doesn&apos;t match the listing?</label>
       <textarea id="reason" name="reason" rows={4} minLength={10} maxLength={2000} required className={inputClass}
         aria-describedby="reason-help" />
-      <p id="reason-help" className="text-xs text-muted">Your money stays held while we review. Nothing is released automatically during a dispute.</p>
+      <p id="reason-help" className="text-xs text-muted">Your rent stays held while we review. Nothing is released automatically during a dispute.</p>
       {state?.error && <p role="alert" className="text-sm text-signal">{state.error}</p>}
       <button disabled={pending} className={`${btn.dangerSolid} w-full`}>
         {pending ? "Submitting…" : "Submit dispute"}

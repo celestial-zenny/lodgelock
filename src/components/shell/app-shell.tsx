@@ -26,6 +26,7 @@ function navFor(viewer: Viewer): NavItem[] {
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[16rem_1fr]">
+      <a href="#content" className="skip-link">Skip to content</a>
       <aside className="hidden border-r border-line bg-surface lg:block">
         <div className="sticky top-0 flex h-dvh flex-col px-4 py-5">
         <Link href="/" aria-label="LodgeLock home" className="rounded-lg px-2"><Logo /></Link>
@@ -34,7 +35,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <SidebarNav />
           </Suspense>
         </div>
-        <TrustNote />
+        <Suspense fallback={null}>
+          <TrustNote />
+        </Suspense>
         <Suspense fallback={null}>
           <SidebarFooter />
         </Suspense>
@@ -42,9 +45,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex min-h-dvh min-w-0 flex-col">
-        <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur">
+        <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur lg:hidden">
           <div className="flex h-14 items-center justify-between gap-3 px-4 sm:px-6">
-            <Link href="/" aria-label="LodgeLock home" className="rounded-lg lg:invisible"><Logo markClassName="size-7" /></Link>
+            <Link href="/" aria-label="LodgeLock home" className="rounded-lg"><Logo markClassName="size-7" /></Link>
             <Suspense fallback={<span className="h-9 w-24" aria-hidden />}>
               <TopBarAuth />
             </Suspense>
@@ -111,11 +114,17 @@ async function TopBarAuth() {
   );
 }
 
-function TrustNote() {
+async function TrustNote() {
+  const viewer = await getViewer();
+  const lister = viewer.signedIn && isLister(viewer.role);
   return (
     <div className="rounded-2xl bg-night p-4 text-sm text-night-muted">
       <p className="flex items-center gap-2 font-semibold text-white"><Icon name="lock" className="text-brass" />Rent held, not handed over</p>
-      <p className="mt-1.5 leading-snug">Landlords are paid only after you get the keys and confirm.</p>
+      <p className="mt-1.5 leading-snug">
+        {lister
+          ? "Rent reaches your verified account when the student confirms move-in."
+          : "Landlords are paid only after you get the keys and confirm."}
+      </p>
     </div>
   );
 }
