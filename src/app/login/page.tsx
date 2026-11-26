@@ -7,8 +7,8 @@ export const metadata: Metadata = { title: "Log in — LodgeLock" };
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
-    <main className="mx-auto w-full max-w-md flex-1 px-4 py-8">
-      <h1 className="mb-6 text-2xl font-semibold tracking-tight">Log in</h1>
+    <main className="mx-auto w-full max-w-md flex-1 px-4 pt-6 pb-tabbar sm:px-6 lg:pt-10">
+      <h1 className="mb-6 font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">Log in</h1>
       <Suspense fallback={<LoginForm />}>
         <LoginWithParams searchParams={searchParams} />
       </Suspense>

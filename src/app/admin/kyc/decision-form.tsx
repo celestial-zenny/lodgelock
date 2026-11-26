@@ -11,7 +11,7 @@ export function DecisionForm({ reviewId, canApprove }: { reviewId: string; canAp
       <input type="hidden" name="reviewId" value={reviewId} />
       <label htmlFor={`note-${reviewId}`} className="sr-only">Note to the applicant (optional)</label>
       <input id={`note-${reviewId}`} name="note" maxLength={500} placeholder="Note to applicant (optional)" className={inputClass} />
-      {state?.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
+      {state?.error && <p role="alert" className="text-sm text-signal">{state.error}</p>}
       <div className="flex gap-2">
         <button name="decision" value="approve" disabled={pending || !canApprove}
           className="flex-1 rounded-lg bg-brand px-3 py-2.5 font-semibold text-brand-ink disabled:opacity-50">

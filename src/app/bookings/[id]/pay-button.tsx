@@ -4,6 +4,9 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { startPayment, verifyPayment, type CheckoutParams } from "../actions";
 import type { SettleOutcome } from "@/lib/payments/settle";
+import { useToast } from "@/components/toast";
+import { btn } from "@/components/ui";
+import { Icon } from "@/components/icons";
 
 declare global {
   interface Window {
@@ -40,6 +43,7 @@ export function PayButton({ bookingId, pendingRef }: { bookingId: string; pendin
   const [message, setMessage] = useState<string | null>(null);
   const [lastRef, setLastRef] = useState<string | null>(pendingRef);
   const checkedReturn = useRef(false);
+  const toast = useToast();
 
   const check = (ref: string) =>
     startTransition(async () => {
@@ -47,6 +51,7 @@ export function PayButton({ bookingId, pendingRef }: { bookingId: string; pendin
       const { outcome } = await verifyPayment(bookingId, ref);
       if (outcome === "paid" || outcome === "already_paid") {
         setMessage(null);
+        toast("Payment confirmed. Your rent is held until you move in.");
         router.refresh();
       } else {
         setMessage(MESSAGES[outcome] ?? MESSAGES.error!);
@@ -81,18 +86,20 @@ export function PayButton({ bookingId, pendingRef }: { bookingId: string; pendin
     });
 
   return (
-    <div className="space-y-3">
-      <button onClick={pay} disabled={isPending}
-        className="w-full rounded-lg bg-brand px-4 py-3 font-semibold text-brand-ink disabled:opacity-60">
+    <div className="space-y-3 rounded-2xl border border-line bg-surface p-5">
+      <p className="flex gap-3 text-sm text-muted">
+        <Icon name="lock" className="mt-0.5 shrink-0 text-brand" />
+        <span>When you pay, the money is held by our payment partner. The landlord is paid only after you collect the keys and confirm.</span>
+      </p>
+      <button onClick={pay} disabled={isPending} className={`${btn.primary} w-full`}>
         {isPending ? "Please wait…" : "Pay securely with Interswitch"}
       </button>
       {lastRef && (
-        <button onClick={() => check(lastRef)} disabled={isPending}
-          className="w-full rounded-lg border border-line bg-surface px-4 py-3 text-sm font-medium disabled:opacity-60">
+        <button onClick={() => check(lastRef)} disabled={isPending} className={`${btn.secondary} w-full text-sm`}>
           I&apos;ve paid. Check payment status
         </button>
       )}
-      {message && <p role="status" className="rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">{message}</p>}
+      {message && <p role="status" className="rounded-xl bg-brass-soft px-3 py-2.5 text-sm text-brass-ink">{message}</p>}
       <p className="text-center text-xs text-muted">Sandbox mode: use Interswitch test cards. No real money moves.</p>
     </div>
   );

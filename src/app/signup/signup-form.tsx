@@ -22,7 +22,7 @@
     return (
       <form action={action} className="space-y-5" noValidate>
         {state?.formError && (
-          <p role="alert" className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
+          <p role="alert" className="rounded-xl bg-signal-soft px-3 py-2.5 text-sm font-medium text-signal">
             {state.formError}
           </p>
         )}
@@ -63,7 +63,7 @@
         className={`flex items-center gap-3 rounded-xl border p-4 transition-colors ${
           selectedRole === role.value
             ? "border-brand bg-brand/5"
-            : "border-border bg-background hover:border-brand/50"
+            : "border-line-strong/50 bg-surface hover:border-brand"
         } ${
           isMinor && role.value !== "student"
             ? "cursor-not-allowed opacity-50"
@@ -79,7 +79,6 @@
           onChange={() => setSelectedRole(role.value)}
           disabled={isMinor && role.value !== "student"}
           className="size-4 accent-[var(--brand)]"
-          aria-invalid={Boolean(fe.role)}
           aria-describedby={fe.role ? "role-error" : undefined}
         />
 
@@ -127,7 +126,7 @@
 
 
         {isMinor && (
-          <fieldset className="space-y-4 rounded-xl border border-warn/30 bg-warn-soft p-4">
+          <fieldset className="space-y-4 rounded-2xl border border-brass bg-brass-soft p-4">
             <legend className="px-1 text-sm font-semibold text-warn">Parent or guardian consent</legend>
             <p className="text-sm text-foreground/80">
               You&apos;re under 18. Under the Nigeria Data Protection Act, a parent or guardian has to agree
@@ -157,7 +156,7 @@
                 and agrees to me creating a LodgeLock account.
               </span>
             </label>
-            {fe.guardianConsent && <p className="text-sm text-danger">{fe.guardianConsent}</p>}
+            {fe.guardianConsent && <p className="text-sm text-signal">{fe.guardianConsent}</p>}
           </fieldset>
         )}
 
@@ -169,11 +168,11 @@
               <Link href="/privacy" className="underline" target="_blank">Privacy Policy</Link>.
             </span>
           </label>
-          {fe.acceptTerms && <p className="text-sm text-danger">{fe.acceptTerms}</p>}
+          {fe.acceptTerms && <p className="text-sm text-signal">{fe.acceptTerms}</p>}
         </div>
 
         <button type="submit" disabled={pending}
-          className="w-full rounded-lg bg-brand px-4 py-3 font-semibold text-brand-ink disabled:opacity-60">
+          className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-brand px-5 font-semibold text-brand-ink hover:bg-brand-hover disabled:opacity-60">
           {pending ? "Creating account…" : "Create account"}
         </button>
 

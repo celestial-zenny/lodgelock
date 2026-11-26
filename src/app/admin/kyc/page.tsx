@@ -13,9 +13,9 @@ const dt = new Intl.DateTimeFormat("en-NG", {
 
 export default function AdminKycPage() {
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Identity approvals</h1>
-      <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-line" aria-busy="true" />}>
+    <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 pt-6 pb-tabbar sm:px-6 lg:pt-10">
+      <h1 className="font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">Identity approvals</h1>
+      <Suspense fallback={<div className="h-64 skeleton rounded-2xl" role="status" aria-label="Loading" />}>
         <Queue />
       </Suspense>
     </main>
@@ -53,7 +53,7 @@ async function Queue() {
   return (
     <ul className="space-y-4">
       {reviews.map((r) => (
-        <li key={r.id} className="space-y-3 rounded-xl border border-line bg-surface p-4">
+        <li key={r.id} className="space-y-3 rounded-2xl border border-line bg-surface p-5">
           <div className="flex items-baseline justify-between gap-2">
             <p className="font-semibold">{r.subject?.full_name}</p>
             <p className="text-xs capitalize text-muted">{r.subject?.role} · {dt.format(new Date(r.submitted_at))}</p>

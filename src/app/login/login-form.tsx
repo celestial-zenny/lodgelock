@@ -12,7 +12,7 @@ export function LoginForm({ next, linkError }: { next?: string; linkError?: bool
   return (
     <form action={action} className="space-y-5">
       {error && (
-        <p role="alert" className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
+        <p role="alert" className="rounded-xl bg-signal-soft px-3 py-2.5 text-sm font-medium text-signal">
           {error}
         </p>
       )}
@@ -26,7 +26,7 @@ export function LoginForm({ next, linkError }: { next?: string; linkError?: bool
           className={inputClass} />
       </Field>
       <button type="submit" disabled={pending}
-        className="w-full rounded-lg bg-brand px-4 py-3 font-semibold text-brand-ink disabled:opacity-60">
+        className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-brand px-5 font-semibold text-brand-ink hover:bg-brand-hover disabled:opacity-60">
         {pending ? "Logging in…" : "Log in"}
       </button>
       <p className="text-center text-sm text-muted">

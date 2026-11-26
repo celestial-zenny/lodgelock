@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
 export const inputClass =
-  "block w-full rounded-lg border border-line bg-surface px-3 py-3 text-base outline-none " +
-  "focus:border-brand focus:ring-2 focus:ring-brand/20 aria-[invalid=true]:border-danger";
+  "block min-h-12 w-full rounded-xl border border-line-strong bg-surface px-3.5 py-3 text-base text-ink outline-none " +
+  "focus:border-brand focus:ring-4 focus:ring-brand/15 aria-[invalid=true]:border-signal";
 
 export function Field({
   label,
@@ -19,13 +19,13 @@ export function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm font-medium">
+      <label htmlFor={htmlFor} className="block text-sm font-semibold">
         {label}
       </label>
       {children}
       {hint && !error && <p className="text-xs text-muted">{hint}</p>}
       {error && (
-        <p id={`${htmlFor}-error`} className="text-sm text-danger">
+        <p id={`${htmlFor}-error`} className="text-sm font-medium text-signal">
           {error}
         </p>
       )}

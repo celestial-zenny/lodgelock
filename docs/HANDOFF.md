@@ -3,6 +3,8 @@
 ## Live
 - Site: https://lodgelock-nine.vercel.app (Vercel, auto-deploys from `main`)
 - Supabase project `lodgelock` (ref `vnwqvokhybdvrlldnnrb`, eu-west-2). Migrations 0001–0008 applied; seed run.
+  **Apply `0009_agent_fee_cap_8pct.sql` (agent fee cap 5% → 8%) when merging the redesign, then re-run `seed.sql`**
+  so the demo lodges show 8% agent fees. Until 0009 is applied the database still rejects fees above 5%.
 - Admin: the team lead's account (role `admin`) → `/account` shows Identity approvals + Lodge approvals.
   Make another admin: `update public.profiles set role = 'admin' where id = (select id from auth.users where email = '…');`
 - Supabase Auth: **Confirm email is OFF** for the demo (sign-up logs you straight in). Turn it back on, with a
@@ -31,9 +33,10 @@
 - Guardian confirmation for under-18s not built (minors can sign up but can't book).
 - No "Forgot password" (needs working email). Reset by SQL:
   `update auth.users set encrypted_password = extensions.crypt('NEW', extensions.gen_salt('bf')) where email = '…';`
-- Listing UI: backend + `/admin/lodges` done; Clare builds the forms from `docs/listing-api.md`.
-- Clare's design copy fixes pending: 48h (not 72h) auto-release; mention 10% late-cancel; landlord page:
-  "admin approves → live; scout visit adds a badge"; dashboard "In review" instead of "Waiting for scout inspection".
+- Listing UI: `/landlord/listings` (status chips: Live / In review / Needs changes) and `/landlord/listings/new`
+  (details, then photos). Editing an existing listing has no form yet (`updateLodge` is ready).
+- Clare's design copy fixes: done (48h auto-release, 10% late-cancel, "admin approves → live; scout visit adds a badge",
+  "In review").
 - Lint warning in `src/app/signup/signup-form.tsx` (aria-invalid on radio) — cosmetic.
 
 ## Clean-up before the demo
