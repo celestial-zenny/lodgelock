@@ -38,7 +38,7 @@ export async function signUp(_prev: SignupState, formData: FormData): Promise<Si
   // The date of birth is used only to compute isAdult above. It is not stored or logged.
   const supabase = await createUserClient();
   const origin = siteUrl((await headers()).get("origin"));
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: v.email,
     password: v.password,
     options: {
@@ -69,9 +69,18 @@ export async function signUp(_prev: SignupState, formData: FormData): Promise<Si
       return { fieldErrors: { password: "Choose a stronger password" }, values };
     }
     // Don't reveal whether the email exists; DB trigger errors also land here.
-    return { formError: "We couldn't create your account. Check your details and try again.", values };
+    return {
+      formError: "We couldn't create your account. Check your details, or log in if you already have an account.",
+      values,
+    };
   }
 
-  // Same page whether or not the email was already registered (no account enumeration).
+  // Email confirmation off (Supabase "Confirm email" disabled): the user is signed in already, so take them in
+  // instead of sending them to wait for an email that will never come.
+  if (data.session) {
+    redirect(v.role === "student" ? "/lodges" : v.role === "caretaker" ? "/account" : "/verify");
+  }
+
+  // Confirmation on: same page whether or not the email was already registered (no account enumeration).
   redirect("/signup/check-email");
 }
