@@ -13,7 +13,7 @@ export function EmptyState({ icon, title, children, action }: {
       <span className="grid size-14 place-items-center rounded-2xl bg-brand-soft text-brand">
         <Icon name={icon} width={28} height={28} />
       </span>
-      <h2 className="mt-4 font-display text-xl font-bold">{title}</h2>
+      <h2 className="mt-4 font-display text-xl font-semibold">{title}</h2>
       {children && <div className="mt-1.5 max-w-sm text-sm text-muted">{children}</div>}
       {action && <div className="mt-5">{action}</div>}
     </div>

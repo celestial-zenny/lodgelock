@@ -14,7 +14,7 @@ export function ConsentForm() {
   return (
     <form action={action} className="space-y-4">
       <section aria-labelledby="why" className="space-y-3 rounded-2xl border border-line bg-surface p-5 text-sm">
-        <h2 id="why" className="font-display text-xl font-bold">Before we check anything</h2>
+        <h2 id="why" className="font-display text-xl font-semibold">Before we check anything</h2>
         <p>
           LodgeLock verifies every landlord and agent so students know who they&apos;re paying. With your consent we
           will send these details to <b>Interswitch</b>, our verification partner, for three checks:

@@ -11,12 +11,12 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 pt-6 pb-tabbar text-sm leading-relaxed sm:px-6 lg:pt-10">
       <header>
-        <h1 className="font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">Privacy Policy</h1>
+        <h1 className="font-display text-3xl font-semibold leading-[1.05] sm:text-4xl">Privacy Policy</h1>
         <p className="text-muted">Version {POLICY_VERSION}. Prototype, not yet reviewed by counsel.</p>
       </header>
 
       <section className="space-y-2">
-        <h2 className="font-display text-xl font-bold">What we collect and why</h2>
+        <h2 className="font-display text-xl font-semibold">What we collect and why</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li><b>Account details</b> (name, email, optional phone) to run your account. Lawful basis: contract.</li>
           <li><b>Your age.</b> We ask for your date of birth only to check whether you&apos;re 18 or over. We store the yes/no result, not the date.</li>
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="font-display text-xl font-bold">What we don&apos;t do</h2>
+        <h2 className="font-display text-xl font-semibold">What we don&apos;t do</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>No analytics or session recording unless you opt in.</li>
           <li>No marketing messages without your consent. Every message says who sent it and has a working unsubscribe link.</li>
@@ -36,12 +36,12 @@ export default function PrivacyPage() {
       </section>
 
       <section className="space-y-2">
-        <h2 className="font-display text-xl font-bold">Who processes your data</h2>
+        <h2 className="font-display text-xl font-semibold">Who processes your data</h2>
         <p>Supabase (database and storage), Vercel (hosting) and Interswitch (payments and identity checks).</p>
       </section>
 
       <section className="space-y-2">
-        <h2 className="font-display text-xl font-bold">Your rights</h2>
+        <h2 className="font-display text-xl font-semibold">Your rights</h2>
         <p>
           Under the Nigeria Data Protection Act 2023 you can ask to see, correct or delete your data, and you
           can withdraw consent at any time. Request deletion from your <Link href="/account" className="underline">account page</Link>.
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
       </section>
 
       <section id="terms" className="space-y-2 border-t border-line pt-6">
-        <h2 className="font-display text-xl font-bold">Terms (summary)</h2>
+        <h2 className="font-display text-xl font-semibold">Terms (summary)</h2>
         <ul className="list-disc space-y-1 pl-5">
           <li>LodgeLock is a booking platform. We never hold your money ourselves. A licensed payment partner holds it.</li>
           <li>Rent is released when you confirm you&apos;ve moved in. If the landlord, agent or caretaker marks the keys handed over and you don&apos;t confirm or dispute within 48 hours, it&apos;s released automatically.</li>

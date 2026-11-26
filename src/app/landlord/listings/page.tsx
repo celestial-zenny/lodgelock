@@ -85,7 +85,7 @@ async function Listings() {
                 <p className="mt-1 text-sm text-muted">
                   {ROOM_TYPE_LABEL[l.room_type]} in {l.area}. {isOwner ? "You own it" : l.agent_id === uid ? "You're the agent" : "You're the caretaker"}.
                 </p>
-                <p className="mt-1 font-display text-xl font-extrabold tnum">{formatNaira(l.rent_kobo)} <span className="font-sans text-sm font-normal text-muted">a year</span></p>
+                <p className="mt-1 font-display text-xl font-semibold tnum">{formatNaira(l.rent_kobo)} <span className="font-sans text-sm font-normal text-muted">a year</span></p>
                 {l.status === "pending_review" && <p className="mt-2 text-sm text-muted">An admin is checking this listing. It goes live when approved.</p>}
                 {l.status === "verified" && (
                   <Link href={`/lodges/${l.id}`} className="mt-2 inline-block text-sm font-semibold text-brand underline underline-offset-2">See what students see</Link>

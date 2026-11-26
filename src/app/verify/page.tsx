@@ -15,7 +15,7 @@ const d = new Intl.DateTimeFormat("en-NG", { day: "numeric", month: "short", yea
 export default function VerifyPage() {
   return (
     <main className="mx-auto w-full max-w-xl flex-1 space-y-6 px-4 pt-6 pb-tabbar sm:px-6 lg:pt-10">
-      <h1 className="font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">Verify your identity</h1>
+      <h1 className="font-display text-3xl font-semibold leading-[1.05] sm:text-4xl">Verify your identity</h1>
       <Suspense fallback={<div className="h-80 skeleton rounded-2xl" role="status" aria-label="Loading" />}>
         <VerifyStep />
       </Suspense>

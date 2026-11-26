@@ -14,7 +14,7 @@ const dt = new Intl.DateTimeFormat("en-NG", {
 export default function AdminKycPage() {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 pt-6 pb-tabbar sm:px-6 lg:pt-10">
-      <h1 className="font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">Identity approvals</h1>
+      <h1 className="font-display text-3xl font-semibold leading-[1.05] sm:text-4xl">Identity approvals</h1>
       <Suspense fallback={<div className="h-64 skeleton rounded-2xl" role="status" aria-label="Loading" />}>
         <Queue />
       </Suspense>

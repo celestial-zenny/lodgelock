@@ -27,9 +27,10 @@ const STEPS = [
 export default function Home() {
   return (
     <main className="flex-1 pb-tabbar">
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-8 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:gap-14 lg:pt-14">
+      <div className="paper-print pb-12">
+      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-8 sm:px-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-14 lg:pt-14">
         <div>
-          <h1 className="font-display text-[2.75rem] font-extrabold leading-[0.95] text-ink sm:text-6xl lg:text-7xl">
+          <h1 className="font-display text-[2.9rem] font-medium leading-[0.98] tracking-[-0.02em] text-ink sm:text-6xl lg:text-[4.75rem]">
             Don&apos;t pay for a lodge you haven&apos;t moved into.
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted">
@@ -44,13 +45,14 @@ export default function Home() {
 
         <ExampleTicket />
       </section>
+      </div>
 
-      <section aria-labelledby="how" className="mx-auto mt-16 max-w-6xl px-4 sm:px-6">
-        <h2 id="how" className="font-display text-3xl font-extrabold">How your rent is protected</h2>
+      <section aria-labelledby="how" className="mx-auto mt-6 max-w-6xl px-4 sm:px-6">
+        <h2 id="how" className="font-display text-3xl font-semibold">How your rent is protected</h2>
         <ol className="mt-6 grid gap-6 sm:grid-cols-3 sm:gap-8">
           {STEPS.map((s, i) => (
             <li key={s.title} className="border-t-2 border-ink pt-4">
-              <span className="font-display text-4xl font-extrabold text-brand tnum">{i + 1}</span>
+              <span className="font-display text-4xl font-semibold text-brand tnum">{i + 1}</span>
               <h3 className="mt-2 text-lg font-bold">{s.title}</h3>
               <p className="mt-1.5 leading-relaxed text-muted">{s.body}</p>
             </li>
@@ -66,7 +68,7 @@ export default function Home() {
       <section aria-labelledby="listers" className="mx-auto mt-16 max-w-6xl px-4 sm:px-6">
         <div className="on-dark grid gap-6 rounded-2xl bg-night p-6 text-white sm:p-10 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
-            <h2 id="listers" className="font-display text-3xl font-extrabold">Landlords and agents</h2>
+            <h2 id="listers" className="font-display text-3xl font-semibold">Landlords and agents</h2>
             <p className="mt-3 max-w-2xl text-night-muted">
               Verify your identity once, then list your lodge. An admin approves it and it goes live. A scout visit
               later adds an inspected badge. Payouts go straight to your verified bank account when the student

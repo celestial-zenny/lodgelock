@@ -58,13 +58,13 @@ async function BookingList() {
         return (
           <li key={b.id} className="lift">
             <Link href={`/bookings/${b.id}`}
-              className="flex items-center justify-between gap-4 rounded-2xl border border-line bg-surface p-4 hover:border-brand">
+              className="flex items-center justify-between gap-4 rounded-[14px] border border-line bg-surface shadow-[inset_0_0_0_4px_var(--surface),inset_0_0_0_5px_var(--line)] p-4 hover:border-brand">
               <div className="min-w-0">
                 <p className="truncate text-lg font-bold">{b.lodges?.title}</p>
                 <p className="text-sm text-muted">
                   {b.lodges?.area}{b.student_id === uid ? "" : ", on your lodge"}
                 </p>
-                <p className="mt-1 font-display text-xl font-extrabold tnum">{b.total_kobo != null && formatNaira(b.total_kobo)}</p>
+                <p className="mt-1 font-display text-xl font-semibold tnum">{b.total_kobo != null && formatNaira(b.total_kobo)}</p>
               </div>
               <StatusChip {...chip} />
             </Link>

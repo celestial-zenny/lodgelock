@@ -14,6 +14,7 @@ import { StatusChip } from "@/components/status-chip";
 import { RentTrack, trackStep } from "@/components/rent-track";
 import { PanelSkeleton } from "@/components/skeleton";
 import { Icon } from "@/components/icons";
+import { Note, serialFor } from "@/components/note";
 import { card, page, sectionTitle } from "@/components/ui";
 import { PayButton } from "./pay-button";
 import { CancelForm, DisputeForm, RpcButton } from "./handover";
@@ -91,7 +92,7 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
           <Icon name="arrow-left" width={16} height={16} />{viewer === "student" ? "My bookings" : "Dashboard"}
         </Link>
         <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
-          <h1 className="font-display text-4xl font-extrabold leading-[1]">{lodge?.title}</h1>
+          <h1 className="font-display text-4xl font-semibold leading-[1]">{lodge?.title}</h1>
           <StatusChip {...chip} className="mt-1.5" />
         </div>
         {lodge && <p className="mt-2 text-muted">{ROOM_TYPE_LABEL[lodge.room_type]} in {lodge.area}</p>}
@@ -114,7 +115,7 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
         )}
         <div className="flex items-baseline justify-between gap-4 border-t border-line pt-3">
           <dt className="font-semibold">Total</dt>
-          <dd className="font-display text-2xl font-extrabold">{formatNaira(b.total_kobo ?? b.rent_kobo + b.agent_fee_kobo)}</dd>
+          <dd className="font-display text-2xl font-semibold">{formatNaira(b.total_kobo ?? b.rent_kobo + b.agent_fee_kobo)}</dd>
         </div>
       </dl>
 
@@ -282,8 +283,9 @@ function HeldPanel(props: {
   const lateComp = Math.max(0, Math.floor(rentKobo / 10) - commitmentKobo);
   if (viewer !== "student") {
     return (
-      <section aria-labelledby="held" className="on-dark space-y-3 rounded-2xl bg-night p-5 text-sm text-night-muted sm:p-6">
-        <h2 id="held" className="flex items-center gap-2 font-display text-2xl font-extrabold text-white"><Icon name="lock" className="text-brass" />Rent paid and held</h2>
+      <Note as="section" aria-labelledby="held" serial={`No. ${serialFor(bookingId)}`} className="text-sm">
+        <div className="space-y-3 text-night-muted">
+        <h2 id="held" className="mt-1 flex items-center gap-2 font-display text-[1.6rem] font-medium text-white"><Icon name="lock" className="text-brass" />Rent paid and held</h2>
         {handoverAt ? (
           <p>
             Keys handed over {dt.format(new Date(handoverAt))}. The rent is released when the student confirms, or
@@ -298,12 +300,14 @@ function HeldPanel(props: {
           </>
         )}
         {viewer === "caretaker" && <p>As caretaker you can mark the handover. Payouts go only to the landlord and agent.</p>}
-      </section>
+        </div>
+      </Note>
     );
   }
   return (
-    <section aria-labelledby="held" className="on-dark space-y-3 rounded-2xl bg-night p-5 text-sm text-night-muted sm:p-6">
-      <h2 id="held" className="flex items-center gap-2 font-display text-2xl font-extrabold text-white"><Icon name="lock" className="text-brass" />Your rent is held</h2>
+    <Note as="section" aria-labelledby="held" serial={`No. ${serialFor(bookingId)}`} className="text-sm">
+      <div className="space-y-3 text-night-muted">
+      <h2 id="held" className="mt-1 flex items-center gap-2 font-display text-[1.6rem] font-medium text-white"><Icon name="lock" className="text-brass" />Your rent is held</h2>
       <p>The landlord hasn&apos;t been paid yet. Collect your keys and check the lodge against the listing.</p>
       {handoverAt && autoReleaseAt && (
         <p className="rounded-xl bg-brass px-3 py-2.5 font-medium text-night">
@@ -318,6 +322,7 @@ function HeldPanel(props: {
         <CancelForm bookingId={bookingId}
           graceNote={`Free within ${CANCEL_GRACE_HOURS} hours of paying, if you haven't received the keys. Otherwise the landlord keeps ${lateComp > 0 ? formatNaira(lateComp) : "nothing more"} (${LATE_CANCEL_PCT}% of rent${commitmentKobo > 0 ? ", less the commitment fee already paid" : ""}) and the rest is refunded.`} />
       </div>
-    </section>
+      </div>
+    </Note>
   );
 }

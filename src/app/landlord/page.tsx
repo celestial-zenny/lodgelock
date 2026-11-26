@@ -118,7 +118,7 @@ async function Content() {
                     <span className="min-w-0">
                       <span className="block truncate font-bold">{b.lodges.title}</span>
                       <span className="block text-sm text-muted">Move-in {d.format(new Date(b.move_in_date))}</span>
-                      {b.total_kobo != null && <span className="mt-0.5 block font-display text-lg font-extrabold tnum">{formatNaira(b.total_kobo)}</span>}
+                      {b.total_kobo != null && <span className="mt-0.5 block font-display text-lg font-semibold tnum">{formatNaira(b.total_kobo)}</span>}
                     </span>
                     <StatusChip {...bookingChip(b.status as BookingStatus, b.handover_at)} />
                   </Link>
@@ -147,7 +147,7 @@ async function Content() {
                         {d.format(new Date(p.created_at))}, {p.status === "awaiting_kyc" ? "waiting for your identity check" : p.status}
                       </p>
                     </div>
-                    <span className="font-display text-lg font-extrabold tnum">{formatNaira(p.amount_kobo)}</span>
+                    <span className="font-display text-lg font-semibold tnum">{formatNaira(p.amount_kobo)}</span>
                   </li>
                 ))}
               </ul>
@@ -160,7 +160,7 @@ async function Content() {
 
       <aside className="space-y-4">
         <section aria-labelledby="how" className="rounded-2xl bg-night p-5 text-sm text-night-muted">
-          <h2 id="how" className="font-display text-xl font-extrabold text-white">How listing works</h2>
+          <h2 id="how" className="font-display text-xl font-semibold text-white">How listing works</h2>
           <ol className="mt-3 space-y-3">
             {[
               "List your lodge with photos.",
@@ -168,7 +168,7 @@ async function Content() {
               "A scout visit adds an inspected badge. It isn't required to go live.",
             ].map((s, i) => (
               <li key={s} className="flex gap-3">
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brass font-display text-sm font-extrabold text-night">{i + 1}</span>
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brass font-display text-sm font-semibold text-night">{i + 1}</span>
                 <span className="pt-0.5">{s}</span>
               </li>
             ))}
