@@ -1,14 +1,19 @@
 import "server-only";
 import { z } from "zod";
-import { interswitchConfig } from "./config";
+import { INTERSWITCH_USER_AGENT, interswitchConfig, type InterswitchConfig } from "./config";
 
 // Interswitch transaction query response (fields we rely on; others ignored).
 const RequeryResponse = z.object({
   ResponseCode: z.string(),
   ResponseDescription: z.string().optional(),
   Amount: z.coerce.number().int().optional(),
-  MerchantReference: z.string().optional(),
+  MerchantReference: z.string().nullish(),
   PaymentReference: z.string().nullish(),
+});
+
+const TokenResponse = z.object({
+  access_token: z.string().min(1),
+  expires_in: z.coerce.number().positive().optional(),
 });
 
 export type RequeryResult = {
@@ -17,6 +22,35 @@ export type RequeryResult = {
   amountKobo: number | null;
   paymentReference: string | null;
 };
+
+// One token per server instance, reused until a minute before it expires (Interswitch issues ~1 hour tokens).
+let cachedToken: { value: string; expiresAt: number } | null = null;
+
+async function accessToken(cfg: InterswitchConfig, forceRefresh = false): Promise<string> {
+  if (!forceRefresh && cachedToken && cachedToken.expiresAt > Date.now()) return cachedToken.value;
+
+  const basic = Buffer.from(`${cfg.clientId}:${cfg.clientSecret}`).toString("base64");
+  const res = await fetch(cfg.passportUrl, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${basic}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+      Accept: "application/json",
+      "User-Agent": INTERSWITCH_USER_AGENT,
+    },
+    // grant_type goes in the body only: sending it in the query string as well is rejected.
+    body: new URLSearchParams({ grant_type: "client_credentials" }).toString(),
+    cache: "no-store",
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!res.ok) throw new Error(`Interswitch token request failed: HTTP ${res.status}`);
+  const parsed = TokenResponse.safeParse(await res.json());
+  if (!parsed.success) throw new Error("Interswitch token: unexpected response shape");
+
+  const ttlMs = (parsed.data.expires_in ?? 3600) * 1000;
+  cachedToken = { value: parsed.data.access_token, expiresAt: Date.now() + Math.max(ttlMs - 60_000, 30_000) };
+  return cachedToken.value;
+}
 
 /**
  * Server-side source of truth for a payment. Never trust the browser callback or a webhook body
@@ -29,11 +63,20 @@ export async function requeryTransaction(txnRef: string, amountKobo: number): Pr
   url.searchParams.set("transactionreference", txnRef);
   url.searchParams.set("amount", String(amountKobo));
 
-  const res = await fetch(url, {
-    headers: { Accept: "application/json" },
-    cache: "no-store",
-    signal: AbortSignal.timeout(15_000),
-  });
+  const query = async (token: string) =>
+    fetch(url, {
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+        "User-Agent": INTERSWITCH_USER_AGENT,
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(15_000),
+    });
+
+  let res = await query(await accessToken(cfg));
+  if (res.status === 401) res = await query(await accessToken(cfg, true)); // token revoked/expired early
   if (!res.ok) throw new Error(`Interswitch requery failed: HTTP ${res.status}`);
 
   const parsed = RequeryResponse.safeParse(await res.json());
