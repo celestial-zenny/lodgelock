@@ -12,7 +12,7 @@ export function LodgeDecisionForm({ lodgeId }: { lodgeId: string }) {
       <label htmlFor={`note-${lodgeId}`} className="sr-only">Note to the lister (required to reject)</label>
       <input id={`note-${lodgeId}`} name="note" maxLength={500} placeholder="Note to lister (required to reject)"
         className={inputClass} />
-      {state?.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
+      {state?.error && <p role="alert" className="text-sm text-signal">{state.error}</p>}
       <div className="flex gap-2">
         <button name="decision" value="approve" disabled={pending}
           className="min-h-11 flex-1 rounded-lg bg-brand px-3 py-2.5 font-semibold text-brand-ink disabled:opacity-50">

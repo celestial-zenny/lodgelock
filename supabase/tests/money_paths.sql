@@ -128,7 +128,7 @@ declare
   ct   uuid := pg_temp.mk_user('caretaker', 'Cara Taker');
   s1   uuid := pg_temp.mk_user('student', 'Stu One');
   s2   uuid := pg_temp.mk_user('student', 'Stu Two');
-  -- lodges (rent ₦300,000 = 30,000,000 kobo; agent fee 5% = 1,500,000; landlord commission 5% = 1,500,000)
+  -- lodges (rent ₦300,000 = 30,000,000 kobo; agent fee 5% = 1,500,000 (cap is 8%); landlord commission 5% = 1,500,000)
   la   uuid; lc uuid; ln uuid; lu uuid;
   b    uuid; b2 uuid; r1 uuid; kind text; ok boolean;
   R constant bigint := 30000000; F constant bigint := 1500000; K constant bigint := 1500000;

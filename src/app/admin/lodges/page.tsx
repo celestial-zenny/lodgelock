@@ -15,10 +15,10 @@ const dt = new Intl.DateTimeFormat("en-NG", {
 
 export default function AdminLodgesPage() {
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Lodge approvals</h1>
+    <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 pt-6 pb-tabbar sm:px-6 lg:pt-10">
+      <h1 className="font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">Lodge approvals</h1>
       <p className="text-sm text-muted">Approving makes a lodge live. A scout inspection is a separate badge, not required.</p>
-      <Suspense fallback={<div className="h-64 animate-pulse rounded-xl bg-line" aria-busy="true" />}>
+      <Suspense fallback={<div className="h-64 skeleton rounded-2xl" role="status" aria-label="Loading" />}>
         <Queue />
       </Suspense>
     </main>
@@ -57,7 +57,7 @@ async function Queue() {
       {lodges.map((l) => {
         const photos = [...l.lodge_photos].sort((a, b) => a.position - b.position);
         return (
-          <li key={l.id} className="space-y-3 rounded-xl border border-line bg-surface p-4">
+          <li key={l.id} className="space-y-3 rounded-2xl border border-line bg-surface p-5">
             <div className="flex items-baseline justify-between gap-2">
               <p className="font-semibold">{l.title}</p>
               {l.submitted_at && <p className="text-xs text-muted">{dt.format(new Date(l.submitted_at))}</p>}

@@ -2,7 +2,7 @@
 // The database is the enforcer: keep AMENITIES / CHECKLIST_ITEMS in sync with private.allowed_amenities() and
 // private.allowed_checklist_keys() in supabase/migrations/0008_lodge_listing.sql.
 import { z } from "zod";
-import { AGENT_FEE_CAP_DIVISOR, COMMITMENT_FEE_MAX_PCT, COMMITMENT_FEE_MIN_PCT, LANDLORD_COMMISSION_DEFAULT_PCT,
+import { AGENT_FEE_CAP_PCT, agentFeeWithinCap, COMMITMENT_FEE_MAX_PCT, COMMITMENT_FEE_MIN_PCT, LANDLORD_COMMISSION_DEFAULT_PCT,
   LANDLORD_COMMISSION_MAX_PCT } from "@/lib/booking/money";
 
 export const AREAS = ["Eziobodo", "Umuchima", "Ihiagwa"] as const;
@@ -75,7 +75,7 @@ const checkbox = z.preprocess((v) => v === "on" || v === "true" || v === true, z
 /**
  * One FormData shape for "List your lodge". Field names are what the form must send.
  * - partnerEmail: a landlord names their agent (optional); an agent must name the landlord.
- * - agentFee: student-paid, only allowed when the lodge has an agent, max 5% of rent.
+ * - agentFee: student-paid, only allowed when the lodge has an agent, max 8% of rent (AGENT_FEE_CAP_BPS).
  * - rentToAgent: landlord only; pays rent to the named agent (signs a payee mandate).
  */
 const LodgeFields = z.object({
@@ -100,8 +100,8 @@ const LodgeFields = z.object({
 });
 
 function feeWithinCap(v: { agentFee: number; rent: number }, ctx: z.RefinementCtx) {
-  if (v.agentFee * AGENT_FEE_CAP_DIVISOR > v.rent) {
-    ctx.addIssue({ code: "custom", path: ["agentFee"], message: `Agent fee can't be more than ${100 / AGENT_FEE_CAP_DIVISOR}% of rent` });
+  if (!agentFeeWithinCap(v.agentFee, v.rent)) {
+    ctx.addIssue({ code: "custom", path: ["agentFee"], message: `Agent fee can't be more than ${AGENT_FEE_CAP_PCT}% of rent` });
   }
 }
 

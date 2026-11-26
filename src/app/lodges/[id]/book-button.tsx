@@ -2,30 +2,35 @@
 
 import { useActionState } from "react";
 import { createBooking, type BookState } from "@/app/bookings/actions";
+import { btn } from "@/components/ui";
 
 // No client-side `min` date: computing "today" here would read the clock during prerender.
 // The server action and create_booking both reject past dates.
-export function BookButton({ lodgeId, renewalOf, label = "Book this lodge" }: {
+export function BookButton({ lodgeId, renewalOf, label = "Book this lodge", layout = "inline" }: {
   lodgeId: string;
   renewalOf?: string;
   label?: string;
+  /** inline: date and button side by side (sticky bar). stacked: full-width (side card, renewals). */
+  layout?: "inline" | "stacked";
 }) {
   const [state, action, pending] = useActionState<BookState, FormData>(createBooking, null);
+  const id = `move-in-${renewalOf ?? lodgeId}-${layout}`;
+  const stacked = layout === "stacked";
   return (
-    <form action={action} className="flex flex-col items-end gap-1">
+    <form action={action} className={stacked ? "space-y-3" : "flex flex-col items-end gap-1"}>
       <input type="hidden" name="lodgeId" value={lodgeId} />
       {renewalOf && <input type="hidden" name="renewalOf" value={renewalOf} />}
-      <div className="flex items-end gap-2">
-        <label className="flex flex-col text-xs text-muted">
-          Move-in date
-          <input type="date" name="moveInDate" required
-            className="mt-0.5 rounded-lg border border-line bg-surface px-2 py-2.5 text-sm text-foreground" />
-        </label>
-        <button disabled={pending} className="rounded-lg bg-brand px-4 py-3 font-semibold text-brand-ink disabled:opacity-60">
+      <div className={stacked ? "space-y-3" : "flex items-end gap-2"}>
+        <div className={stacked ? "space-y-1.5" : "flex flex-col"}>
+          <label htmlFor={id} className={stacked ? "block text-sm font-semibold" : "text-xs font-medium text-muted"}>Move-in date</label>
+          <input id={id} type="date" name="moveInDate" required aria-describedby={state?.error ? `${id}-error` : undefined}
+            className={`rounded-xl border border-line-strong bg-surface px-3 text-ink ${stacked ? "min-h-12 w-full text-base" : "mt-0.5 min-h-12 w-[9.5rem] text-sm"}`} />
+        </div>
+        <button disabled={pending} className={`${btn.primary} ${stacked ? "w-full" : "px-4"}`}>
           {pending ? "Booking…" : label}
         </button>
       </div>
-      {state?.error && <p role="alert" className="max-w-64 text-right text-xs text-danger">{state.error}</p>}
+      {state?.error && <p id={`${id}-error`} role="alert" className={`text-sm text-signal ${stacked ? "" : "max-w-72 text-right"}`}>{state.error}</p>}
     </form>
   );
 }

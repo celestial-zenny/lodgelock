@@ -45,7 +45,7 @@ Editing a live lodge (details or photos) sends it back to review, so students al
 | `amenities` | repeated checkbox, values from `AMENITIES` |
 | `distanceToGateM`, `nearestGate` | optional; `main_gate` · `back_gate` |
 | `rent` | naira, "250,000" is fine; 10,000–10,000,000 |
-| `agentFee` | naira, student-paid, max 5% of rent, only with an agent |
+| `agentFee` | naira, student-paid, max 8% of rent (`AGENT_FEE_CAP_BPS`), only with an agent |
 | `commitmentFeePct` | `0`, or `10`–`20` |
 | `landlordCommissionPct` | `0`–`10`, default `5` (landlord pays the agent from rent) |
 | `partnerEmail` | landlord: their agent's LodgeLock email (optional). Agent: the landlord's email (**required**) |

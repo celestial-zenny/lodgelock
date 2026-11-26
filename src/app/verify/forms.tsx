@@ -13,8 +13,8 @@ export function ConsentForm() {
   const [state, action, pending] = useActionState<ConsentState, FormData>(grantKycConsent, null);
   return (
     <form action={action} className="space-y-4">
-      <section aria-labelledby="why" className="space-y-3 rounded-xl border border-line bg-surface p-4 text-sm">
-        <h2 id="why" className="text-base font-semibold">Before we check anything</h2>
+      <section aria-labelledby="why" className="space-y-3 rounded-2xl border border-line bg-surface p-5 text-sm">
+        <h2 id="why" className="font-display text-xl font-bold">Before we check anything</h2>
         <p>
           LodgeLock verifies every landlord and agent so students know who they&apos;re paying. With your consent we
           will send these details to <b>Interswitch</b>, our verification partner, for three checks:
@@ -37,8 +37,8 @@ export function ConsentForm() {
         <input type="checkbox" name="agree" className="mt-0.5 size-5 accent-[var(--brand)]" />
         <span>I consent to LodgeLock sending my NIN, BVN and bank account details to Interswitch for these three checks.</span>
       </label>
-      {state?.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
-      <button disabled={pending} className="w-full rounded-lg bg-brand px-4 py-3 font-semibold text-brand-ink disabled:opacity-60">
+      {state?.error && <p role="alert" className="text-sm text-signal">{state.error}</p>}
+      <button disabled={pending} className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-brand px-5 font-semibold text-brand-ink hover:bg-brand-hover disabled:opacity-60">
         {pending ? "Saving…" : "I agree, continue"}
       </button>
     </form>
@@ -56,7 +56,7 @@ export function DetailsForm({ fullName }: { fullName: string }) {
         <p className="rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand">
           We&apos;ll match against <b>{fullName}</b>. These numbers go straight to Interswitch and aren&apos;t saved.
         </p>
-        {state?.error && <p role="alert" className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">{state.error}</p>}
+        {state?.error && <p role="alert" className="rounded-xl bg-signal-soft px-3 py-2.5 text-sm font-medium text-signal">{state.error}</p>}
 
         <Field label="NIN" htmlFor="nin" error={fe.nin} hint="11 digits, on your NIN slip or NIMC app">
           <input id="nin" name="nin" inputMode="numeric" maxLength={11} pattern="\d{11}" required
@@ -77,12 +77,12 @@ export function DetailsForm({ fullName }: { fullName: string }) {
             className={inputClass} {...err("accountNumber")} />
         </Field>
 
-        <button disabled={pending} className="w-full rounded-lg bg-brand px-4 py-3 font-semibold text-brand-ink disabled:opacity-60">
+        <button disabled={pending} className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-brand px-5 font-semibold text-brand-ink hover:bg-brand-hover disabled:opacity-60">
           {pending ? "Checking with Interswitch…" : "Run checks"}
         </button>
       </form>
       <form action={withdrawKycConsent}>
-        <button className="w-full rounded-lg border border-line bg-surface px-4 py-3 text-sm font-medium">
+        <button className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-line-strong/50 bg-surface px-5 text-sm font-semibold hover:border-brand hover:text-brand">
           Cancel and withdraw my consent
         </button>
       </form>

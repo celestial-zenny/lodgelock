@@ -1,37 +1,196 @@
 @import "tailwindcss";
 
+/*
+ * LodgeLock visual system
+ * Indigo is the lock: trust, held money, primary actions.
+ * Brass is the key: the one bright accent, used for "held" moments and the logo's shackle. Fills only, never body text on white.
+ * Leaf marks money that has moved to the landlord. Signal is for disputes and destructive actions.
+ * All text pairs below pass WCAG AA (checked: muted on paper 6.0:1, brand on white 11.3:1, brass-ink on brass-soft 7.4:1).
+ */
 :root {
-  --background: #f7f7f4;
-  --foreground: #1c1f1d;
+  --paper: #f2f3f7;
   --surface: #ffffff;
-  --muted: #5d655f;
-  --line: #e2e4df;
-  --brand: #0f6b4f;       /* trust green */
+  --ink: #15173d;
+  --muted: #565b76;
+  --line: #dadce7;
+  --line-strong: #7a7fa3;
+  --brand: #2c2f86;
+  --brand-hover: #23266e;
   --brand-ink: #ffffff;
-  --brand-soft: #e3f1ea;
-  --warn: #8a5a00;
-  --warn-soft: #fdf1d8;
-  --danger: #b42318;
+  --brand-soft: #e6e7f6;
+  --night: #13153a;
+  --night-muted: #c9ccf0;
+  --brass: #f2b42b;
+  --brass-soft: #fdf1d2;
+  --brass-ink: #6a4700;
+  --leaf: #0d7247;
+  --leaf-soft: #ddf1e6;
+  --signal: #b42318;
+  --signal-soft: #fbe6e4;
+
+  --tabbar-h: 4rem;
+  color-scheme: light;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--paper);
+  --color-paper: var(--paper);
+  --color-foreground: var(--ink);
+  --color-ink: var(--ink);
   --color-surface: var(--surface);
   --color-muted: var(--muted);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
-  --color-warn: var(--warn);
-  --color-warn-soft: var(--warn-soft);
-  --color-danger: var(--danger);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-night: var(--night);
+  --color-night-muted: var(--night-muted);
+  --color-brass: var(--brass);
+  --color-brass-soft: var(--brass-soft);
+  --color-brass-ink: var(--brass-ink);
+  --color-leaf: var(--leaf);
+  --color-leaf-soft: var(--leaf-soft);
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
+  /* Legacy names still used by a few components. */
+  --color-warn: var(--brass-ink);
+  --color-warn-soft: var(--brass-soft);
+  --color-danger: var(--signal);
+  --font-sans: var(--font-bricolage), var(--font-bricolage-ext), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), var(--font-bricolage-ext), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  accent-color: var(--brand);
+  scrollbar-color: var(--line-strong) var(--paper);
+}
+
+/* Browser surfaces carry the palette too. */
+::selection {
+  background: var(--brass-soft);
+  color: var(--ink);
+}
+input, textarea {
+  caret-color: var(--brand);
+}
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+  font-variation-settings: "wdth" 100;
+}
+
+/* Display type: condensed, heavy, tight. Used for headlines and money. */
+.font-display {
+  font-family: var(--font-display);
+  font-variation-settings: "wdth" 82;
+  letter-spacing: -0.015em;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* On night surfaces an indigo ring disappears: use brass (9.5:1 on night). */
+.on-dark :focus-visible {
+  outline-color: var(--brass);
+}
+
+/* Skip link: hidden until focused. */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 60;
+  border-radius: 0.75rem;
+  background: var(--night);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* Hover and press: buttons step 1px up on a fine pointer and sink on press. */
+.press {
+  transition: transform 150ms cubic-bezier(0.2, 0.8, 0.2, 1), background-color 150ms, border-color 150ms, color 150ms;
+}
+.press:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+  transition-duration: 90ms;
+}
+/* Linked cards: the list item stays still (so the pointer never slips off) and its link lifts 2px. */
+.lift > a {
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 180ms;
+}
+@media (hover: hover) and (pointer: fine) {
+  .press:hover:not(:disabled) { transform: translateY(-1px); }
+  .press:active:not(:disabled) { transform: translateY(1px) scale(0.985); }
+  .lift:hover > a { transform: translateY(-2px); }
+}
+
+/* Keep focused elements clear of the sticky top bar and the mobile tab bar (WCAG 2.4.11). */
+html {
+  scroll-padding-top: 4.5rem;
+  scroll-padding-bottom: calc(var(--tabbar-h) + 1rem);
+}
+
+/* Page enter: one quiet movement per navigation. */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.page-enter {
+  animation: page-in 220ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; /* no fill afterwards: a lingering transform would trap position:fixed children */
+}
+
+@keyframes shimmer {
+  from { background-position: 150% 0; }
+  to { background-position: -50% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--line) 0%, #e8e9f0 40%, var(--line) 80%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 0.5rem;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.toast-enter {
+  animation: toast-in 200ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Bottom padding so the mobile tab bar never covers content. */
+.pb-tabbar {
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 1.5rem);
+}
+@media (min-width: 1024px) {
+  .pb-tabbar { padding-bottom: 3rem; }
 }

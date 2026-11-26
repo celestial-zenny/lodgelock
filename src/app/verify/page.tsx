@@ -6,6 +6,7 @@ import { createUserClient } from "@/lib/supabase/server";
 import { splitName } from "@/lib/kyc/schema";
 import { activeKycConsents } from "./state";
 import { ConsentForm, DetailsForm } from "./forms";
+import { Icon } from "@/components/icons";
 
 export const metadata: Metadata = { title: "Verify your identity — LodgeLock" };
 
@@ -13,9 +14,9 @@ const d = new Intl.DateTimeFormat("en-NG", { day: "numeric", month: "short", yea
 
 export default function VerifyPage() {
   return (
-    <main className="mx-auto w-full max-w-md flex-1 space-y-6 px-4 py-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Verify your identity</h1>
-      <Suspense fallback={<div className="h-80 animate-pulse rounded-xl bg-line" aria-busy="true" />}>
+    <main className="mx-auto w-full max-w-xl flex-1 space-y-6 px-4 pt-6 pb-tabbar sm:px-6 lg:pt-10">
+      <h1 className="font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">Verify your identity</h1>
+      <Suspense fallback={<div className="h-80 skeleton rounded-2xl" role="status" aria-label="Loading" />}>
         <VerifyStep />
       </Suspense>
     </main>
@@ -52,7 +53,7 @@ async function VerifyStep() {
   if (profile.identity_verified_at) {
     return (
       <Notice>
-        <p className="font-semibold">You&apos;re verified ✓</p>
+        <p className="flex items-center gap-1.5 font-semibold"><Icon name="shield" width={18} height={18} />You&apos;re verified</p>
         <p>Approved on {d.format(new Date(profile.identity_verified_at))}. Students see a verified badge on your lodges.</p>
       </Notice>
     );

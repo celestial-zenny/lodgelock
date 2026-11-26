@@ -9,11 +9,17 @@ import {
   AUTO_RELEASE_HOURS, CANCEL_GRACE_HOURS, LATE_CANCEL_PCT, NO_SHOW_DAYS, STATUS_LABEL, type BookingStatus,
 } from "@/lib/booking/state-machine";
 import { ROOM_TYPE_LABEL } from "@/lib/lodges";
+import { bookingChip } from "@/lib/booking/status-chip";
+import { StatusChip } from "@/components/status-chip";
+import { RentTrack, trackStep } from "@/components/rent-track";
+import { PanelSkeleton } from "@/components/skeleton";
+import { Icon } from "@/components/icons";
+import { card, page, sectionTitle } from "@/components/ui";
 import { PayButton } from "./pay-button";
 import { CancelForm, DisputeForm, RpcButton } from "./handover";
 import { BookButton } from "@/app/lodges/[id]/book-button";
 
-export const metadata: Metadata = { title: "Your booking — LodgeLock" };
+export const metadata: Metadata = { title: "Your booking" };
 
 const dateOnly = new Intl.DateTimeFormat("en-NG", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
 const dt = new Intl.DateTimeFormat("en-NG", {
@@ -22,8 +28,8 @@ const dt = new Intl.DateTimeFormat("en-NG", {
 
 export default function BookingPage(props: PageProps<"/bookings/[id]">) {
   return (
-    <main className="mx-auto w-full max-w-md flex-1 px-4 py-6">
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-xl bg-line" aria-busy="true" />}>
+    <main className={`${page} max-w-2xl`}>
+      <Suspense fallback={<PanelSkeleton label="Loading booking" />}>
         <BookingDetail {...props} />
       </Suspense>
     </main>
@@ -75,32 +81,40 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
     commitmentFeeKobo: b.commitment_fee_kobo, hasAgent: !!b.agent_id,
   });
   const done = status === "MOVE_IN_CONFIRMED" || status === "AUTO_CONFIRMED" || status === "PAID_OUT";
+  const chip = bookingChip(status, b.handover_at);
+  const step = trackStep(status, b.handover_at);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
-        <Link href="/bookings" className="text-sm text-muted underline">← My bookings</Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">{lodge?.title}</h1>
-        {lodge && <p className="text-muted">{ROOM_TYPE_LABEL[lodge.room_type]} · {lodge.area}</p>}
+        <Link href={viewer === "student" ? "/bookings" : "/landlord"} className="inline-flex min-h-10 items-center gap-1.5 text-sm font-semibold text-muted hover:text-brand">
+          <Icon name="arrow-left" width={16} height={16} />{viewer === "student" ? "My bookings" : "Dashboard"}
+        </Link>
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+          <h1 className="font-display text-4xl font-extrabold leading-[1]">{lodge?.title}</h1>
+          <StatusChip {...chip} className="mt-1.5" />
+        </div>
+        {lodge && <p className="mt-2 text-muted">{ROOM_TYPE_LABEL[lodge.room_type]} in {lodge.area}</p>}
         <p className="text-sm text-muted">
-          Move-in date: {dateOnly.format(new Date(b.move_in_date))}{b.renewal_of && " · Renewal"}
+          Move-in date: {dateOnly.format(new Date(b.move_in_date))}{b.renewal_of && ". Renewal"}
         </p>
       </div>
 
-      <p className={`rounded-lg px-3 py-2 text-sm font-medium ${status === "DRAFT" ? "bg-warn-soft text-warn" : "bg-brand-soft text-brand"}`}>
-        {STATUS_LABEL[status]}
-      </p>
+      <section aria-label="Where your money is" className={`${card} p-5`}>
+        {step !== null ? <RentTrack current={step} /> : <p className="text-sm font-medium">{STATUS_LABEL[status]}</p>}
+      </section>
 
-      <dl className="space-y-2 rounded-xl border border-line bg-surface p-4 text-sm">
-        <div className="flex justify-between"><dt>Rent (1 year)</dt><dd>{formatNaira(b.rent_kobo)}</dd></div>
-        <div className="flex justify-between"><dt>Agent fee</dt><dd>{b.agent_fee_kobo > 0 ? formatNaira(b.agent_fee_kobo) : "None"}</dd></div>
+      <dl className={`${card} space-y-2.5 p-5 text-sm tnum`}>
+        <div className="flex justify-between gap-4"><dt>Rent for 1 year</dt><dd className="font-medium">{formatNaira(b.rent_kobo)}</dd></div>
+        <div className="flex justify-between gap-4"><dt>Agent fee</dt><dd className="font-medium">{b.agent_fee_kobo > 0 ? formatNaira(b.agent_fee_kobo) : "None"}</dd></div>
         {b.commitment_fee_kobo > 0 && (
-          <div className="flex justify-between text-muted">
+          <div className="flex justify-between gap-4 text-muted">
             <dt>of which commitment fee (paid to landlord at payment, not held)</dt><dd>{formatNaira(b.commitment_fee_kobo)}</dd>
           </div>
         )}
-        <div className="flex justify-between border-t border-line pt-2 text-base font-semibold">
-          <dt>Total</dt><dd>{formatNaira(b.total_kobo ?? b.rent_kobo + b.agent_fee_kobo)}</dd>
+        <div className="flex items-baseline justify-between gap-4 border-t border-line pt-3">
+          <dt className="font-semibold">Total</dt>
+          <dd className="font-display text-2xl font-extrabold">{formatNaira(b.total_kobo ?? b.rent_kobo + b.agent_fee_kobo)}</dd>
         </div>
       </dl>
 
@@ -117,7 +131,8 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
       )}
 
       {done && (
-        <p className="rounded-xl bg-brand-soft p-4 text-sm text-brand">
+        <p className="flex gap-3 rounded-2xl bg-leaf-soft p-4 text-sm font-medium text-leaf">
+          <Icon name="check" className="shrink-0" />
           {viewer === "student"
             ? "Done. The landlord's payout has been released. Enjoy your new place!"
             : viewer === "caretaker"
@@ -127,7 +142,7 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
       )}
 
       {status === "STUDENT_CANCELLED" && (
-        <p className="rounded-xl bg-warn-soft p-4 text-sm text-warn">
+        <p className="rounded-2xl bg-brass-soft p-4 text-sm text-brass-ink">
           {b.cancellation_kind === "grace"
             ? "Cancelled within the grace period. Everything held has been refunded."
             : b.cancellation_kind === "no_show"
@@ -140,24 +155,25 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
       )}
 
       {done && viewer === "student" && lodge && !renewal && (
-        <section aria-labelledby="renew" className="space-y-2 rounded-xl border border-line bg-surface p-4 text-sm">
-          <h2 id="renew" className="font-semibold">Staying another year?</h2>
+        <section aria-labelledby="renew" className={`${card} space-y-3 p-5 text-sm`}>
+          <h2 id="renew" className={sectionTitle}>Staying another year?</h2>
           <p className="text-muted">Renew through LodgeLock: no agent fee, and your rent is protected the same way.</p>
-          <BookButton lodgeId={lodge.id} renewalOf={b.id} label="Renew" />
+          <BookButton lodgeId={lodge.id} renewalOf={b.id} label="Renew" layout="stacked" />
         </section>
       )}
       {renewal && viewer === "student" && (
-        <Link href={`/bookings/${renewal.id}`} className="block text-sm text-brand underline">View your renewal →</Link>
+        <Link href={`/bookings/${renewal.id}`} className="block text-sm font-semibold text-brand underline underline-offset-2">View your renewal</Link>
       )}
 
       {events && events.length > 0 && (
         <section aria-labelledby="hist">
-          <h2 id="hist" className="text-sm font-semibold">History</h2>
-          <ol className="mt-2 space-y-1 border-l border-line pl-4 text-sm">
+          <h2 id="hist" className={sectionTitle}>History</h2>
+          <ol className="mt-3 space-y-3 border-l-2 border-line pl-5 text-sm">
             {events.map((e) => (
-              <li key={e.id}>
-                <span className="font-medium">{STATUS_LABEL[e.to_status as BookingStatus]}</span>{" "}
-                <span className="text-muted">· {dt.format(new Date(e.created_at))}</span>
+              <li key={e.id} className="relative">
+                <span aria-hidden className="absolute top-1.5 -left-[1.6rem] size-2.5 rounded-full bg-brand ring-4 ring-paper" />
+                <span className="block font-medium">{EVENT_LABEL[e.to_status as BookingStatus]}</span>
+                <span className="text-muted">{dt.format(new Date(e.created_at))}</span>
               </li>
             ))}
           </ol>
@@ -168,6 +184,19 @@ async function BookingDetail({ params, searchParams }: PageProps<"/bookings/[id]
 }
 
 type Viewer = "student" | "landlord" | "agent" | "caretaker";
+
+/** History entries describe what happened, not the current state. */
+const EVENT_LABEL: Record<BookingStatus, string> = {
+  DRAFT: "Booked",
+  PAID_HELD: "Paid. Rent held",
+  MOVE_IN_CONFIRMED: "Move-in confirmed. Rent released",
+  DISPUTED: "Dispute raised",
+  AUTO_CONFIRMED: "Rent released automatically",
+  REFUNDED: "Refunded",
+  PAID_OUT: "Landlord paid",
+  CANCELLED: "Booking cancelled",
+  STUDENT_CANCELLED: "Cancelled. Refund issued",
+};
 
 type BookingRow = {
   id: string;
@@ -206,9 +235,9 @@ function PayoutSplit({ viewer, split, commitment, isRenewal, payouts }: {
   payouts: { id: string; kind: string; amount_kobo: number; status: string }[];
 }) {
   return (
-    <section aria-labelledby="split" className="space-y-2 rounded-xl border border-line bg-surface p-4 text-sm">
-      <h2 id="split" className="font-semibold">How the payment is split at release</h2>
-      <dl className="space-y-1">
+    <section aria-labelledby="split" className={`${card} space-y-3 p-5 text-sm tnum`}>
+      <h2 id="split" className={sectionTitle}>How the payment is split at release</h2>
+      <dl className="space-y-2">
         <div className="flex justify-between"><dt>Rent to landlord{viewer === "agent" && " (or you, under a signed payee mandate)"}</dt><dd>{formatNaira(split.rentToPayee)}</dd></div>
         {commitment > 0 && <div className="flex justify-between text-muted"><dt>+ commitment fee, paid at payment</dt><dd>{formatNaira(commitment)}</dd></div>}
         {split.agentFee > 0 && <div className="flex justify-between"><dt>Agent fee (paid by student)</dt><dd>{formatNaira(split.agentFee)}</dd></div>}
@@ -221,17 +250,17 @@ function PayoutSplit({ viewer, split, commitment, isRenewal, payouts }: {
       </dl>
       {payouts.length > 0 && (
         <>
-          <h3 className="pt-2 font-semibold">Your payouts</h3>
-          <ul className="space-y-1">
+          <h3 className="border-t border-line pt-3 font-semibold">Your payouts</h3>
+          <ul className="space-y-2">
             {payouts.map((p) => (
               <li key={p.id} className="flex justify-between gap-2">
-                <span>{PAYOUT_KIND[p.kind] ?? p.kind}{p.status === "awaiting_kyc" && <span className="text-warn"> · waiting for your KYC</span>}</span>
+                <span>{PAYOUT_KIND[p.kind] ?? p.kind}{p.status === "awaiting_kyc" && <span className="text-brass-ink">, waiting for your KYC</span>}</span>
                 <span className="font-medium">{formatNaira(p.amount_kobo)}</span>
               </li>
             ))}
           </ul>
           {payouts.some((p) => p.status === "awaiting_kyc") && (
-            <Link href="/verify" className="text-brand underline">Finish identity verification to get paid →</Link>
+            <Link href="/verify" className="font-semibold text-brand underline underline-offset-2">Finish identity verification to get paid</Link>
           )}
         </>
       )}
@@ -253,37 +282,42 @@ function HeldPanel(props: {
   const lateComp = Math.max(0, Math.floor(rentKobo / 10) - commitmentKobo);
   if (viewer !== "student") {
     return (
-      <section aria-labelledby="held" className="space-y-3 rounded-xl bg-brand-soft p-4 text-sm">
-        <h2 id="held" className="font-semibold text-brand">Rent paid and held</h2>
+      <section aria-labelledby="held" className="on-dark space-y-3 rounded-2xl bg-night p-5 text-sm text-night-muted sm:p-6">
+        <h2 id="held" className="flex items-center gap-2 font-display text-2xl font-extrabold text-white"><Icon name="lock" className="text-brass" />Rent paid and held</h2>
         {handoverAt ? (
           <p>
-            Keys handed over {dt.format(new Date(handoverAt))}. The payment is released when the student confirms, or
-            automatically {autoReleaseAt && <>on <b>{dt.format(new Date(autoReleaseAt))}</b></>} if they don&apos;t respond.
+            Keys handed over {dt.format(new Date(handoverAt))}. The rent is released when the student confirms, or
+            automatically {autoReleaseAt && <>on <b className="text-white">{dt.format(new Date(autoReleaseAt))}</b></>} if they don&apos;t respond.
           </p>
         ) : (
           <>
-            <p>Hand over the keys, then tap below. The student confirms and the payment is released. If they don&apos;t respond within {AUTO_RELEASE_HOURS} hours, it&apos;s released automatically.</p>
-            <RpcButton action="handover" bookingId={bookingId} label="Keys handed over" />
+            <p>Hand over the keys, then mark it below. The rent is released when the student confirms, or automatically if they don&apos;t respond within {AUTO_RELEASE_HOURS} hours.</p>
+            <div className="rounded-2xl bg-surface p-4 text-ink">
+              <RpcButton action="handover" bookingId={bookingId} label="Mark keys as handed over" />
+            </div>
           </>
         )}
-        {viewer === "caretaker" && <p className="text-muted">As caretaker you can mark the handover. Payouts go only to the landlord and agent.</p>}
+        {viewer === "caretaker" && <p>As caretaker you can mark the handover. Payouts go only to the landlord and agent.</p>}
       </section>
     );
   }
   return (
-    <section aria-labelledby="held" className="space-y-3 rounded-xl bg-brand-soft p-4 text-sm">
-      <h2 id="held" className="font-semibold text-brand">Payment received and held</h2>
-      <p>The landlord hasn&apos;t been paid. Collect your keys, check the lodge matches the listing, then confirm.</p>
+    <section aria-labelledby="held" className="on-dark space-y-3 rounded-2xl bg-night p-5 text-sm text-night-muted sm:p-6">
+      <h2 id="held" className="flex items-center gap-2 font-display text-2xl font-extrabold text-white"><Icon name="lock" className="text-brass" />Your rent is held</h2>
+      <p>The landlord hasn&apos;t been paid yet. Collect your keys and check the lodge against the listing.</p>
       {handoverAt && autoReleaseAt && (
-        <p className="text-warn">
+        <p className="rounded-xl bg-brass px-3 py-2.5 font-medium text-night">
           Keys were marked handed over {dt.format(new Date(handoverAt))}. Confirm or raise a dispute by{" "}
           <b>{dt.format(new Date(autoReleaseAt))}</b>, or the payment is released automatically.
         </p>
       )}
-      <RpcButton action="confirm" bookingId={bookingId} label="I've moved in and it matches. Release payment" />
-      <DisputeForm bookingId={bookingId} />
-      <CancelForm bookingId={bookingId}
-        graceNote={`Free within ${CANCEL_GRACE_HOURS} hours of paying, if you haven't received the keys. Otherwise the landlord keeps ${lateComp > 0 ? formatNaira(lateComp) : "nothing more"} (${LATE_CANCEL_PCT}% of rent${commitmentKobo > 0 ? ", less the commitment fee already paid" : ""}) and the rest is refunded.`} />
+      <div className="space-y-3 rounded-2xl bg-surface p-4 text-ink">
+        <p className="text-sm text-muted">Confirm only once you have the keys and the lodge matches the listing. The landlord is paid straight away.</p>
+        <RpcButton action="confirm" bookingId={bookingId} label="Confirm move-in and release rent" />
+        <DisputeForm bookingId={bookingId} />
+        <CancelForm bookingId={bookingId}
+          graceNote={`Free within ${CANCEL_GRACE_HOURS} hours of paying, if you haven't received the keys. Otherwise the landlord keeps ${lateComp > 0 ? formatNaira(lateComp) : "nothing more"} (${LATE_CANCEL_PCT}% of rent${commitmentKobo > 0 ? ", less the commitment fee already paid" : ""}) and the rest is refunded.`} />
+      </div>
     </section>
   );
 }

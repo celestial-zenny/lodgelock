@@ -10,6 +10,7 @@ import { z } from "zod";
 import { createUserClient } from "@/lib/supabase/server";
 import { dbFailure } from "@/lib/db-error";
 import { POLICY_VERSION } from "@/lib/auth/signup-schema";
+import { AGENT_FEE_CAP_PCT } from "@/lib/booking/money";
 import {
   LodgeInput, LodgeUpdateInput, lodgeFormToObject, MAX_PHOTO_BYTES, PHOTO_BUCKET, PHOTO_TYPES,
   type LodgeFieldErrors, type PhotoType,
@@ -28,7 +29,7 @@ function listingMessage(context: string, error: { code?: string; message?: strin
   if (m.includes("no agent account")) return "No agent account uses that email.";
   if (m.includes("landlord with an agent")) return "Only a landlord with an agent can pay rent to the agent.";
   if (m.includes("agent must be KYC-verified")) return "Your agent must verify their identity before rent can go to them.";
-  if (m.includes("agent_fee_cap")) return "The agent fee can't be more than 5% of rent.";
+  if (m.includes("agent_fee_cap")) return `The agent fee can't be more than ${AGENT_FEE_CAP_PCT}% of rent.`;
   if (m.includes("agent_fee_needs_agent")) return "An agent fee needs an agent on the listing.";
   if (m.includes("lodges_amenities_known")) return "One of the amenities isn't recognised.";
   if (m.includes("not a draft")) return "This lodge is already waiting for review.";

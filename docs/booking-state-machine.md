@@ -32,7 +32,7 @@ The cron is `/api/cron/booking-deadlines` (daily on Vercel Hobby, so deadlines c
 Snapshotted on the booking at creation:
 
 - `rent_kobo`: lodge rent.
-- `agent_fee_kobo`: student-paid, ≤ 5% of rent. 0 if the lodge has no agent, and 0 on renewals.
+- `agent_fee_kobo`: student-paid, ≤ 8% of rent (`lodges.agent_fee_cap`, migration 0009; `AGENT_FEE_CAP_BPS` in `money.ts`). 0 if the lodge has no agent, and 0 on renewals.
 - `agent_commission_kobo`: landlord-paid, deducted from the landlord's rent. The lodge's `landlord_commission_pct`
   (default 5%, 0–10%), or 2.5% of rent on a renewal (renewal bonus to the original booking's agent).
 - `commitment_fee_kobo`: optional, 10–20% of rent, paid to the rent payee at payment.
