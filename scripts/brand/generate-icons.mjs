@@ -14,9 +14,9 @@ const { chromium } = createRequire(import.meta.url)("playwright");
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const out = (p) => path.join(root, p);
 
-const INDIGO = "#2c2f86";
-const NIGHT = "#13153a";
-const BRASS = "#f2b42b";
+const INDIGO = "#17493d"; // intaglio green (token: --brand)
+const NIGHT = "#0d2a23";
+const BRASS = "#c9a24a"; // gold foil
 
 // Same geometry as src/components/logo.tsx (48 x 48 grid).
 const SHACKLE = "M14 23.5V18.6L24 10l10 8.6v4.9";
@@ -35,16 +35,16 @@ function tileSvg({ size, radius = 11, inset = 0, bg = INDIGO }) {
 </svg>`;
 }
 
-const fontUrl = "data:font/woff2;base64," + readFileSync(out("src/app/fonts/BricolageGrotesque-Latin.woff2")).toString("base64");
-const fontCss = `@font-face{font-family:B;src:url(${fontUrl}) format("woff2");font-weight:200 800;font-stretch:75% 100%}`;
+const fontUrl = "data:font/woff2;base64," + readFileSync(out("src/app/fonts/NotoSerifDisplay-Latin.woff2")).toString("base64");
+const fontCss = `@font-face{font-family:B;src:url(${fontUrl}) format("woff2");font-weight:100 900;font-stretch:62.5% 100%}`;
 
 const ogHtml = `<!doctype html><html><head><style>${fontCss}
 *{margin:0;box-sizing:border-box}
 body{width:1200px;height:630px;background:${NIGHT};color:#fff;font-family:B;display:flex;flex-direction:column;
   justify-content:space-between;padding:72px 80px;position:relative;overflow:hidden}
-.brand{display:flex;align-items:center;gap:22px;font-size:46px;font-weight:800;font-variation-settings:"wdth" 82,"opsz" 48;letter-spacing:-.01em}
-h1{font-size:92px;line-height:.98;font-weight:800;font-variation-settings:"wdth" 78,"opsz" 96;letter-spacing:-.02em;max-width:900px}
-p{font-size:30px;color:#c9ccf0;font-variation-settings:"opsz" 24;max-width:980px;line-height:1.3}
+.brand{display:flex;align-items:center;gap:22px;font-size:46px;font-weight:600;font-variation-settings:"wdth" 92;letter-spacing:-.01em}
+h1{font-size:96px;line-height:.98;font-weight:600;font-variation-settings:"wdth" 84;letter-spacing:-.015em;max-width:960px}
+p{font-size:30px;color:#bfd3ca;font-weight:400;max-width:980px;line-height:1.3}
 .bar{width:120px;height:10px;border-radius:5px;background:${BRASS};margin-bottom:36px}
 </style></head><body>
 <div class="brand">${tileSvg({ size: 76 })}LodgeLock</div>

@@ -16,7 +16,7 @@ const dt = new Intl.DateTimeFormat("en-NG", {
 export default function AdminLodgesPage() {
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 pt-6 pb-tabbar sm:px-6 lg:pt-10">
-      <h1 className="font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl">Lodge approvals</h1>
+      <h1 className="font-display text-3xl font-semibold leading-[1.05] sm:text-4xl">Lodge approvals</h1>
       <p className="text-sm text-muted">Approving makes a lodge live. A scout inspection is a separate badge, not required.</p>
       <Suspense fallback={<div className="h-64 skeleton rounded-2xl" role="status" aria-label="Loading" />}>
         <Queue />

@@ -108,7 +108,7 @@ async function TopBarAuth() {
   const initial = (viewer.firstName ?? "?").charAt(0).toUpperCase();
   return (
     <Link href="/account" aria-label="Your account"
-      className="grid size-9 place-items-center rounded-full bg-night font-display text-base font-bold text-brass lg:hidden">
+      className="grid size-9 place-items-center rounded-full bg-night font-display text-base font-semibold text-brass lg:hidden">
       {initial}
     </Link>
   );

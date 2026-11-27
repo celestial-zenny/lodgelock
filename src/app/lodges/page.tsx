@@ -97,7 +97,7 @@ async function LodgeResults({ searchParams }: { searchParams: PageProps<"/lodges
                     )}
                   </div>
                   <p>
-                    <span className="font-display text-[1.75rem] font-extrabold leading-none tnum">{formatNaira(l.rent_kobo)}</span>
+                    <span className="font-display text-[1.75rem] font-semibold leading-none tnum">{formatNaira(l.rent_kobo)}</span>
                     <span className="ml-1 text-sm text-muted">a year</span>
                     <span className="mt-1 block text-sm text-muted">
                       {l.agent_fee_kobo > 0 ? `Plus ${formatNaira(l.agent_fee_kobo)} agent fee` : "No agent fee"}

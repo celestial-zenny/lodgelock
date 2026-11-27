@@ -14,7 +14,8 @@ export const btn = {
     "press inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-3.5 text-sm font-semibold disabled:opacity-60",
 } as const;
 
-export const card = "rounded-2xl border border-line bg-surface";
-export const pageTitle = "font-display text-3xl font-extrabold leading-[1.05] text-ink sm:text-4xl";
-export const sectionTitle = "font-display text-xl font-bold text-ink";
+// Cards carry a note's double hairline: the border plus an inset second rule.
+export const card = "rounded-[14px] border border-line bg-surface shadow-[inset_0_0_0_4px_var(--surface),inset_0_0_0_5px_var(--line)]";
+export const pageTitle = "font-display text-[2.1rem] font-medium leading-[1.05] tracking-[-0.015em] text-ink sm:text-[2.6rem]";
+export const sectionTitle = "font-display text-xl font-semibold text-ink";
 export const page = "mx-auto w-full flex-1 px-4 pt-5 sm:px-6 lg:pt-8 pb-tabbar";

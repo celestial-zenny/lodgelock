@@ -86,7 +86,7 @@ export function PayButton({ bookingId, pendingRef }: { bookingId: string; pendin
     });
 
   return (
-    <div className="space-y-3 rounded-2xl border border-line bg-surface p-5">
+    <div className="space-y-3 rounded-[14px] border border-line bg-surface shadow-[inset_0_0_0_4px_var(--surface),inset_0_0_0_5px_var(--line)] p-5">
       <p className="flex gap-3 text-sm text-muted">
         <Icon name="lock" className="mt-0.5 shrink-0 text-brand" />
         <span>When you pay, the money is held by our payment partner. The landlord is paid only after you collect the keys and confirm.</span>

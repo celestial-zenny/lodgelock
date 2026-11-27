@@ -1,32 +1,32 @@
 @import "tailwindcss";
 
 /*
- * LodgeLock visual system
- * Indigo is the lock: trust, held money, primary actions.
- * Brass is the key: the one bright accent, used for "held" moments and the logo's shackle. Fills only, never body text on white.
- * Leaf marks money that has moved to the landlord. Signal is for disputes and destructive actions.
- * All text pairs below pass WCAG AA (checked: muted on paper 6.0:1, brand on white 11.3:1, brass-ink on brass-soft 7.4:1).
+ * LodgeLock visual system: "banknote grade".
+ * Held rent is printed like money. Security-paper ground, intaglio green ink, a deep note green for held panels,
+ * and gold foil reserved for the held state, the logo's shackle and one stripe per note.
+ * Token names are kept from the first build (brand = intaglio, brass = foil, night = note green).
+ * Text pairs pass WCAG AA: ink on paper 14.7:1, muted on paper 6.5:1, foil on night 6.4:1, foil-ink on foil-soft 7.7:1.
  */
 :root {
-  --paper: #f2f3f7;
-  --surface: #ffffff;
-  --ink: #15173d;
-  --muted: #565b76;
-  --line: #dadce7;
-  --line-strong: #7a7fa3;
-  --brand: #2c2f86;
-  --brand-hover: #23266e;
+  --paper: #eff2ec;
+  --surface: #fafbf8;
+  --ink: #10221c;
+  --muted: #4a5a53;
+  --line: #d3dbd3;
+  --line-strong: #6e7e76;
+  --brand: #17493d;
+  --brand-hover: #103a30;
   --brand-ink: #ffffff;
-  --brand-soft: #e6e7f6;
-  --night: #13153a;
-  --night-muted: #c9ccf0;
-  --brass: #f2b42b;
-  --brass-soft: #fdf1d2;
-  --brass-ink: #6a4700;
-  --leaf: #0d7247;
-  --leaf-soft: #ddf1e6;
-  --signal: #b42318;
-  --signal-soft: #fbe6e4;
+  --brand-soft: #e0ebe5;
+  --night: #0d2a23;
+  --night-muted: #bfd3ca;
+  --brass: #c9a24a;
+  --brass-soft: #f3ebd4;
+  --brass-ink: #5b4510;
+  --leaf: #256b3b;
+  --leaf-soft: #e2f0e4;
+  --signal: #a3241b;
+  --signal-soft: #f8e5e2;
 
   --tabbar-h: 4rem;
   color-scheme: light;
@@ -58,8 +58,8 @@
   --color-warn: var(--brass-ink);
   --color-warn-soft: var(--brass-soft);
   --color-danger: var(--signal);
-  --font-sans: var(--font-bricolage), var(--font-bricolage-ext), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-bricolage), var(--font-bricolage-ext), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-geologica), var(--font-geologica-naira), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-engraved), var(--font-engraved-naira), ui-serif, Georgia, serif;
 }
 
 html {
@@ -85,15 +85,67 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-optical-sizing: auto;
-  font-variation-settings: "wdth" 100;
 }
 
-/* Display type: condensed, heavy, tight. Used for headlines and money. */
+/* Display type: an engraved high-contrast serif, a little narrow, for headlines and every naira figure. */
 .font-display {
   font-family: var(--font-display);
-  font-variation-settings: "wdth" 82;
-  letter-spacing: -0.015em;
+  font-variation-settings: "wdth" 88;
+  letter-spacing: -0.01em;
+  font-feature-settings: "lnum";
+}
+
+/* Serial numbers and note labels: tracked capitals in the interface face (never monospace). */
+.serial {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Security print. The linework is a CSS mask, so the ink colour comes from background-color. */
+.print-rosette {
+  background-color: currentColor;
+  -webkit-mask: url(/print/rosette.svg) center / contain no-repeat;
+  mask: url(/print/rosette.svg) center / contain no-repeat;
+}
+.print-band {
+  background-color: currentColor;
+  -webkit-mask: url(/print/band.svg) 0 50% / 96px 100% repeat-x;
+  mask: url(/print/band.svg) 0 50% / 96px 100% repeat-x;
+}
+/* Microtext rule: the line you only read up close. Decorative, so it is aria-hidden where used. */
+.microtext {
+  font-size: 5.5px;
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  contain: inline-size; /* never widens its container */
+}
+/* Windowed security thread: a printed gold thread that surfaces in short windows, as on a note. */
+.foil {
+  background: repeating-linear-gradient(180deg, var(--brass) 0 10px, transparent 10px 18px);
+}
+/* Faint security print on the paper ground (home hero only). */
+.paper-print {
+  position: relative;
+  isolation: isolate;
+}
+.paper-print::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  color: var(--brand);
+  opacity: 0.06;
+  background-color: currentColor;
+  -webkit-mask: url(/print/rosette.svg) right -8rem top -6rem / 44rem 44rem no-repeat, url(/print/band.svg) 0 100% / 96px 28px repeat-x;
+  mask: url(/print/rosette.svg) right -8rem top -6rem / 44rem 44rem no-repeat, url(/print/band.svg) 0 100% / 96px 28px repeat-x;
 }
 
 .tnum {
@@ -164,7 +216,7 @@ html {
   to { background-position: -50% 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, var(--line) 0%, #e8e9f0 40%, var(--line) 80%);
+  background: linear-gradient(90deg, var(--line) 0%, #e5eae4 40%, var(--line) 80%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   border-radius: 0.5rem;

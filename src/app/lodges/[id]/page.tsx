@@ -9,6 +9,7 @@ import { createUserClient } from "@/lib/supabase/server";
 import { Badge, TrustBadges } from "@/components/lodge-badges";
 import { LodgeVisual } from "@/components/lodge-visual";
 import { RentTrack } from "@/components/rent-track";
+import { Note } from "@/components/note";
 import { Skeleton } from "@/components/skeleton";
 import { Icon } from "@/components/icons";
 import { btn, card, sectionTitle } from "@/components/ui";
@@ -56,7 +57,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
   const t = lodge.trust;
   const total = lodge.rent_kobo + lodge.agent_fee_kobo;
   const commitment = commitmentFeeKobo(lodge.rent_kobo, lodge.commitment_fee_pct);
-  const heldNote = commitment > 0 ? `${formatNaira(total - commitment)} held until you move in` : "Held until you move in";
+  const heldNote = commitment > 0 ? `${formatNaira(total - commitment)} held until you move in` : "Held until move-in";
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 pb-tabbar lg:px-6 lg:pt-6">
@@ -83,7 +84,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
       <div className="grid gap-8 px-4 pt-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:px-0 lg:pt-8">
         <div className="min-w-0 space-y-8">
           <header>
-            <h1 className="font-display text-4xl font-extrabold leading-[1] sm:text-5xl">{lodge.title}</h1>
+            <h1 className="font-display text-4xl font-semibold leading-[1] sm:text-5xl">{lodge.title}</h1>
             <p className="mt-2 flex items-start gap-1.5 text-muted">
               <Icon name="pin" width={18} height={18} className="mt-0.5 shrink-0" />
               <span>{ROOM_TYPE_LABEL[lodge.room_type]} at {lodge.address}</span>
@@ -107,8 +108,8 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
             <CommitmentNote commitment={commitment} pct={lodge.commitment_fee_pct} total={total} />
           </section>
 
-          <section aria-labelledby="protect" className="on-dark rounded-2xl bg-night p-5 text-white sm:p-7">
-            <h2 id="protect" className="font-display text-2xl font-extrabold">Your rent is held, not handed over</h2>
+          <Note as="section" aria-labelledby="protect">
+            <h2 id="protect" className="mt-1 font-display text-[1.7rem] leading-tight font-medium">Your rent is held, not handed over</h2>
             <p className="mt-1.5 text-night-muted">LodgeLock&apos;s licensed payment partner keeps the money until you&apos;re in.</p>
             <RentTrack current={1} dark className="mt-6" />
             <ul className="mt-6 space-y-3 text-sm leading-relaxed text-night-muted">
@@ -119,12 +120,12 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
               <li className="flex gap-3"><Icon name="info" className="mt-0.5 shrink-0 text-brass" />
                 <span>Cancel free within {CANCEL_GRACE_HOURS} hours of paying, before you get the keys. After that the landlord keeps <b className="text-white">{LATE_CANCEL_PCT}% of rent</b> as compensation and the rest is refunded. The same applies if no handover happens within {NO_SHOW_DAYS} days of your move-in date.</span></li>
             </ul>
-          </section>
+          </Note>
 
           <section aria-labelledby="who">
             <h2 id="who" className={sectionTitle}>Who you&apos;re dealing with</h2>
             {t ? (
-              <ul className="mt-3 divide-y divide-line rounded-2xl border border-line bg-surface">
+              <ul className="mt-3 divide-y divide-line rounded-[14px] border border-line bg-surface shadow-[inset_0_0_0_4px_var(--surface),inset_0_0_0_5px_var(--line)]">
                 <PersonRow name={t.ownerFirstName} role={t.ownerRole === "agent" ? "Agent" : "Landlord"} verified={t.ownerVerified} />
                 {t.agentFirstName && <PersonRow name={t.agentFirstName} role="Agent" verified={Boolean(t.agentVerified)} />}
               </ul>
@@ -197,7 +198,7 @@ async function LodgeDetail({ params }: { params: PageProps<"/lodges/[id]">["para
         style={{ bottom: "calc(var(--tabbar-h) + env(safe-area-inset-bottom))" }}>
         <div className="mx-auto flex max-w-xl items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-display text-xl font-extrabold leading-none tnum">{formatNaira(total)}</p>
+            <p className="font-display text-xl font-semibold leading-none tnum">{formatNaira(total)}</p>
             <p className="mt-0.5 truncate text-xs text-muted">{heldNote}</p>
           </div>
           {signedIn ? <BookButton lodgeId={lodge.id} label="Book" /> : (
@@ -221,7 +222,7 @@ function PriceTable({ rent, fee, total }: { rent: number; fee: number; total: nu
       </div>
       <div className="flex items-baseline justify-between gap-4 border-t border-line pt-3">
         <dt className="font-semibold">Total</dt>
-        <dd className="font-display text-2xl font-extrabold">{formatNaira(total)}</dd>
+        <dd className="font-display text-2xl font-semibold">{formatNaira(total)}</dd>
       </div>
       <p className="text-xs text-muted">No other fees. If anyone asks you for extra cash, report it.</p>
     </dl>
@@ -243,7 +244,7 @@ function PersonRow({ name, role, verified }: { name: string; role: string; verif
   return (
     <li className="flex items-center justify-between gap-3 px-4 py-3">
       <span className="flex items-center gap-3">
-        <span aria-hidden className="grid size-9 place-items-center rounded-full bg-brand-soft font-display font-bold text-brand">
+        <span aria-hidden className="grid size-9 place-items-center rounded-full bg-brand-soft font-display font-semibold text-brand">
           {name.charAt(0)}
         </span>
         <span><span className="block font-semibold">{name}</span><span className="block text-sm text-muted">{role}</span></span>
